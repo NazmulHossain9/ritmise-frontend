@@ -329,13 +329,14 @@ function childrenHeight(section) {
   background: transparent;
   color: #64748b;
   border: 0;
+  border-left: 2px solid transparent;
   border-radius: 11px;
   font-size: 13px;
   font-weight: 600;
   text-align: left;
   cursor: pointer;
   font-family: inherit;
-  transition: background .15s, color .15s, box-shadow .15s;
+  transition: background .15s, color .15s, border-color .15s;
   line-height: 1.2;
   position: relative;
 }
@@ -344,9 +345,9 @@ function childrenHeight(section) {
   color: #1e293b;
 }
 .sb-item.active {
-  background: linear-gradient(100deg, rgba(56,189,248,.16) 0%, rgba(56,189,248,.05) 100%);
+  background: linear-gradient(100deg, rgba(56,189,248,.13) 0%, rgba(56,189,248,.04) 100%);
   color: #0369a1;
-  box-shadow: inset 0 0 0 1px rgba(56,189,248,.2);
+  border-left-color: #38bdf8;
 }
 
 /* Icon container */
@@ -398,19 +399,7 @@ function childrenHeight(section) {
   transition: max-height .25s cubic-bezier(.4,0,.2,1);
 }
 .sb-children {
-  padding: 2px 10px 6px 57px;
-  position: relative;
-}
-/* Vertical connector line */
-.sb-children::before {
-  content: '';
-  position: absolute;
-  left: 26px;
-  top: 4px;
-  bottom: 12px;
-  width: 1px;
-  background: linear-gradient(to bottom, rgba(56,189,248,.4) 0%, rgba(56,189,248,.06) 100%);
-  border-radius: 1px;
+  padding: 2px 8px 6px 50px;
 }
 .sb-child {
   display: flex;
@@ -421,13 +410,14 @@ function childrenHeight(section) {
   background: transparent;
   color: #94a3b8;
   border: 0;
+  border-left: 2px solid transparent;
   border-radius: 8px;
   font-size: 12px;
   font-weight: 500;
   text-align: left;
   cursor: pointer;
   font-family: inherit;
-  transition: background .12s, color .12s;
+  transition: background .12s, color .12s, border-color .12s;
   margin: 1px 0;
   height: 32px;
   letter-spacing: .01em;
@@ -436,16 +426,12 @@ function childrenHeight(section) {
   width: 4px; height: 4px; border-radius: 50%;
   background: rgba(0,0,0,.15);
   flex-shrink: 0;
-  transition: background .12s, transform .15s, box-shadow .12s;
+  transition: background .12s, transform .15s;
 }
 .sb-child:hover { background: rgba(0,0,0,.04); color: #334155; }
-.sb-child:hover .sb-child-dot { background: rgba(0,0,0,.3); transform: scale(1.5); }
-.sb-child.active { background: rgba(56,189,248,.1); color: #0369a1; }
-.sb-child.active .sb-child-dot {
-  background: #38bdf8;
-  transform: scale(1.6);
-  box-shadow: 0 0 8px rgba(56,189,248,.45);
-}
+.sb-child:hover .sb-child-dot { background: rgba(0,0,0,.3); transform: scale(1.3); }
+.sb-child.active { background: rgba(56,189,248,.08); color: #0369a1; border-left-color: rgba(56,189,248,.55); }
+.sb-child.active .sb-child-dot { background: #38bdf8; transform: scale(1.4); }
 
 /* ══ Footer ══ */
 .sb-footer {
