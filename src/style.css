@@ -27,8 +27,8 @@ body {
   color: var(--dark);
 }
 
-/* Shell */
-.shell {
+/* ── Mobile shell ── */
+.app-layout {
   max-width: 430px;
   margin: 0 auto;
   min-height: 100vh;
@@ -37,10 +37,168 @@ body {
   position: relative;
   padding-bottom: 92px;
 }
+.left-sidebar { display: none !important; }
+.desktop-header { display: none !important; }
+.app-right { display: block; }
+.app-body { min-height: 0; }
 
-@media (min-width: 760px) {
+/* ── Tablet (760px) — rounded shell ── */
+@media (min-width: 760px) and (max-width: 1023px) {
   body { padding: 24px; }
-  .shell { border-radius: 28px; overflow: hidden; min-height: 880px; }
+  .app-layout { border-radius: 28px; overflow: hidden; min-height: 880px; }
+  .bottomnav { bottom: 24px; border-bottom-left-radius: 28px; border-bottom-right-radius: 28px; }
+}
+
+/* ── Desktop (1024px+) — sidebar layout ── */
+@media (min-width: 1024px) {
+  body { padding: 0; }
+
+  /* Root: full-screen flex row */
+  .app-layout {
+    max-width: none; margin: 0; padding-bottom: 0;
+    box-shadow: none; border-radius: 0;
+    display: flex; height: 100vh; overflow: hidden;
+    background: #0d1b2e; /* sidebar gradient start visible behind sidebar */
+  }
+
+  .left-sidebar { display: flex !important; }
+
+  /* Right pane: column flex, contains header + scrollable body */
+  .app-right {
+    flex: 1; display: flex; flex-direction: column;
+    overflow: hidden; background: #f4f6f9;
+  }
+
+  /* Desktop header bar (hidden on mobile) */
+  .desktop-header { display: flex !important; }
+
+  /* Scrollable content */
+  .app-body { flex: 1; overflow-y: auto; background: #f4f6f9; }
+
+  /* Mobile-only elements */
+  .mobile-topbar { display: none !important; }
+  .bottomnav     { display: none !important; }
+
+  /* ── Content centering ── */
+  .screen {
+    padding: 36px 48px;
+    max-width: 960px;
+    margin: 0 auto;
+  }
+
+  /* ── Typography ── */
+  .page-title { margin-bottom: 24px; }
+  .page-title h1 { font-size: 28px; letter-spacing: -.4px; }
+  .page-title p  { font-size: 14px; margin-top: 5px; }
+
+  .breadcrumb { margin-bottom: 18px; }
+  .breadcrumb button { font-size: 14px; }
+  .breadcrumb span   { font-size: 14px; }
+
+  /* ── Cards ── */
+  .card {
+    padding: 22px 26px; margin-bottom: 18px; border-radius: 20px;
+    box-shadow: 0 1px 3px rgba(0,0,0,.06), 0 4px 16px rgba(0,0,0,.04);
+  }
+  .card h2 { font-size: 16px; margin-bottom: 16px; }
+  .card h3 { font-size: 14px; }
+
+  /* ── Home tiles: 3-column ── */
+  .grid2 { grid-template-columns: repeat(3, 1fr); gap: 16px; }
+  .tile {
+    min-height: 116px; padding: 18px; border-radius: 18px;
+    transition: box-shadow .15s, transform .15s;
+  }
+  .tile:hover { box-shadow: 0 4px 24px rgba(0,0,0,.1); transform: translateY(-2px); }
+  .tile strong { font-size: 15px; }
+  .tile .tnum  { font-size: 32px; }
+
+  /* ── Hub tiles: 2-column grid ── */
+  .hub-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+  }
+  .hub-grid .hub-tile {
+    margin-bottom: 0; border-radius: 18px; padding: 18px 20px;
+    transition: box-shadow .15s, transform .15s;
+  }
+  .hub-grid .hub-tile:hover {
+    box-shadow: 0 4px 24px rgba(0,0,0,.1); transform: translateY(-2px);
+  }
+  .hub-icon { width: 48px; height: 48px; border-radius: 14px; font-size: 24px; }
+  .hub-text strong { font-size: 15px; }
+  .hub-text small  { font-size: 13px; }
+
+  /* ── Score grid: 4-column ── */
+  .score-grid { grid-template-columns: repeat(4, 1fr); gap: 14px; }
+  .score-total { font-size: 26px; }
+
+  /* ── Form fields ── */
+  .field { margin-bottom: 16px; }
+  label  { font-size: 13px; margin-bottom: 7px; }
+  input, select, textarea {
+    font-size: 14px; padding: 11px 14px; border-radius: 13px;
+  }
+
+  /* ── Buttons ── */
+  button { padding: 12px 22px; border-radius: 13px; font-size: 14px; }
+  button.sm { padding: 9px 16px; font-size: 12px; }
+  button.link-btn { font-size: 14px; }
+
+  /* ── List items ── */
+  .list-item { border-radius: 16px; padding: 14px 18px; margin-bottom: 10px; }
+  .list-item strong { font-size: 15px; }
+  .list-item span   { font-size: 14px; }
+
+  /* ── Notices ── */
+  .notice { border-radius: 16px; padding: 12px 18px; font-size: 13px; }
+
+  /* ── Badges ── */
+  .badge { font-size: 12px; padding: 5px 12px; }
+
+  /* ── Exception cards ── */
+  .exc-card { border-radius: 18px; padding: 16px 20px; margin-bottom: 14px; }
+  .exc-icon { width: 42px; height: 42px; border-radius: 12px; font-size: 22px; }
+  .exc-body strong { font-size: 15px; }
+  .exc-body span   { font-size: 13px; }
+
+  /* ── Baked goods cards ── */
+  .baked-card { border-radius: 16px; padding: 14px 18px; margin-bottom: 12px; }
+  .baked-card-header strong { font-size: 15px; }
+
+  /* ── Check cards ── */
+  .check-card { border-radius: 16px; padding: 14px 18px; margin-bottom: 10px; }
+  .check-card strong { font-size: 15px; }
+
+  /* ── Priority banner ── */
+  .priority-banner { border-radius: 20px; padding: 20px; margin-bottom: 18px; }
+  .priority-content strong { font-size: 15px; }
+
+  /* ── Sched rows ── */
+  .sched-row { padding: 12px 0; font-size: 14px; }
+
+  /* ── Draft notice ── */
+  .draft-notice { border-radius: 16px; padding: 12px 16px; font-size: 13px; }
+
+  /* ── Desk gate: centred, generous ── */
+  .desk-gate { padding: 72px 48px; max-width: 600px; margin: 0 auto; }
+  .desk-gate .gate-icon { font-size: 72px; margin-bottom: 22px; }
+  .desk-gate h2  { font-size: 30px; margin-bottom: 14px; }
+  .desk-gate p   { font-size: 15px; line-height: 1.65; margin-bottom: 0; }
+  .desk-gate .gate-badge { font-size: 12px; padding: 6px 14px; margin-bottom: 20px; }
+
+  /* ── Modal: centred dialog, not bottom sheet ── */
+  .modal { align-items: center; }
+  .modal-box {
+    border-radius: 22px; max-width: 540px; width: 90%; max-height: 80vh;
+  }
+
+  /* ── Add-row forms ── */
+  .add-row-form { border-radius: 16px; padding: 16px; }
+
+  /* ── Submit actions ── */
+  .submit-actions { gap: 12px; }
 }
 
 /* Topbar */
@@ -261,10 +419,6 @@ button.whatsapp { background: #25D366; color: #fff; }
 .navbtn { background: transparent; color: var(--muted); border-radius: 12px; padding: 7px 3px; font-size: 10px; font-weight: 700; font-family: inherit; cursor: pointer; }
 .navbtn.active { color: var(--blue); background: #eef5fb; }
 .navbtn div { font-size: 18px; line-height: 1; margin-bottom: 3px; }
-
-@media (min-width: 760px) {
-  .bottomnav { bottom: 24px; border-bottom-left-radius: 28px; border-bottom-right-radius: 28px; }
-}
 
 /* Toast */
 .toast {

@@ -9,6 +9,8 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@ionic/vue": "^8.8.5",
+    "@ionic/vue-router": "^8.8.5",
     "@tailwindcss/vite": "^4.2.4",
     "autoprefixer": "^10.5.0",
     "frappe-ui": "^0.1.278",

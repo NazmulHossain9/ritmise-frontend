@@ -1,0 +1,1591 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Ritmise V1 — Full Workflow</title>
+<style>
+:root{
+  --blue:#1f4e78;--blue2:#2b6ca3;--bg:#f5f7fb;--card:#fff;--dark:#202124;--muted:#6b7280;
+  --green:#2e7d32;--greenBg:#e8f5e9;--amber:#b26a00;--amberBg:#fff4e5;
+  --red:#c62828;--redBg:#ffebee;--border:#e5e7eb;--soft:#eef3f8;--teal:#2FA38E;
+}
+*{box-sizing:border-box;}
+body{margin:0;background:#edf3f8;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;color:var(--dark);}
+.shell{max-width:430px;margin:0 auto;min-height:100vh;background:var(--bg);box-shadow:0 0 0 1px rgba(0,0,0,.06),0 15px 40px rgba(0,0,0,.16);position:relative;padding-bottom:92px;}
+
+/* ── Topbar ── */
+.topbar{position:sticky;top:0;z-index:20;background:var(--blue);color:#fff;padding:12px 16px 10px;border-bottom-left-radius:18px;border-bottom-right-radius:18px;box-shadow:0 4px 14px rgba(31,78,120,.22);}
+.topline{display:flex;align-items:center;justify-content:space-between;gap:8px;}
+.logo{font-weight:800;letter-spacing:.2px;font-size:18px;}
+.meta-row{display:flex;align-items:center;gap:8px;margin-top:3px;}
+.meta{font-size:11px;opacity:.78;}
+.sync-pill{font-size:10px;font-weight:700;padding:2px 7px;border-radius:999px;cursor:pointer;user-select:none;transition:.2s;}
+.sync-pill.online{background:rgba(46,125,50,.45);color:#b9f5bc;}
+.sync-pill.offline{background:rgba(198,40,40,.45);color:#ffc4c0;}
+.role-select{font-size:12px;border-radius:999px;border:1px solid rgba(255,255,255,.4);background:rgba(255,255,255,.16);color:#fff;padding:6px 9px;font-family:inherit;-webkit-appearance:none;cursor:pointer;}
+.role-select option{color:#111;}
+
+/* ── Screens ── */
+.screen{display:none;padding:14px;}
+.screen.active{display:block;}
+
+/* ── Breadcrumb ── */
+.breadcrumb{display:flex;align-items:center;gap:6px;margin-bottom:10px;}
+.breadcrumb button{background:transparent;border:0;color:var(--blue2);font-size:13px;font-weight:600;padding:0;cursor:pointer;}
+.breadcrumb span{color:var(--muted);font-size:13px;}
+
+/* ── Page title ── */
+.page-title{display:flex;justify-content:space-between;gap:8px;align-items:flex-start;margin-bottom:12px;}
+.page-title h1{font-size:20px;line-height:1.15;margin:0;}
+.page-title p{margin:4px 0 0;color:var(--muted);font-size:13px;line-height:1.35;}
+
+/* ── Priority Banner ── */
+.priority-banner{background:var(--redBg);border:1px solid #ffc4c0;border-radius:17px;padding:14px;margin-bottom:12px;display:flex;align-items:center;gap:12px;}
+.priority-dot{width:10px;height:10px;border-radius:50%;background:var(--red);flex-shrink:0;animation:pulse 1.5s infinite;}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+.priority-content{flex:1;}
+.priority-content strong{display:block;font-size:14px;color:var(--red);margin-bottom:2px;}
+.priority-content span{font-size:13px;color:#b71c1c;line-height:1.35;}
+.priority-banner button{background:var(--red);color:#fff;border:0;border-radius:11px;padding:9px 12px;font-size:12px;font-weight:800;cursor:pointer;white-space:nowrap;font-family:inherit;}
+
+/* ── Badges ── */
+.badge{display:inline-flex;align-items:center;border-radius:999px;padding:5px 10px;font-size:12px;font-weight:700;background:var(--soft);color:var(--blue);white-space:nowrap;}
+.badge.green{background:var(--greenBg);color:var(--green);}
+.badge.amber{background:var(--amberBg);color:var(--amber);}
+.badge.red{background:var(--redBg);color:var(--red);}
+.badge.teal{background:#e0f5f2;color:#1a7a67;}
+.badge.sm{padding:4px 8px;font-size:11px;}
+
+/* ── Cards ── */
+.card{background:var(--card);border:1px solid var(--border);border-radius:17px;padding:14px;margin-bottom:12px;box-shadow:0 2px 8px rgba(0,0,0,.03);}
+.card h2{font-size:15px;margin:0 0 10px;font-weight:700;}
+.card h3{font-size:13px;margin:10px 0 6px;color:#374151;font-weight:600;}
+
+/* ── Hub tiles ── */
+.hub-tile{background:#fff;border:1px solid var(--border);border-radius:17px;padding:14px 16px;display:flex;align-items:center;gap:12px;cursor:pointer;margin-bottom:10px;box-shadow:0 2px 8px rgba(0,0,0,.03);transition:box-shadow .12s;}
+.hub-tile:active{box-shadow:none;}
+.hub-tile.desk-tile{opacity:.85;}
+.hub-icon{font-size:22px;width:42px;height:42px;background:var(--soft);border-radius:12px;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.hub-icon.desk{background:#f0f4f8;}
+.hub-text{flex:1;}
+.hub-text strong{display:block;font-size:14px;margin-bottom:3px;}
+.hub-text small{font-size:13px;color:var(--muted);line-height:1.3;}
+.hub-arrow{color:#c0cad5;font-size:20px;font-weight:300;}
+
+/* ── Dashboard tiles ── */
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+.tile{background:#fff;border:1px solid var(--border);border-radius:15px;padding:12px;min-height:80px;display:flex;flex-direction:column;justify-content:space-between;box-shadow:0 2px 8px rgba(0,0,0,.03);cursor:pointer;transition:box-shadow .12s;}
+.tile:active{box-shadow:none;}
+.tile strong{font-size:14px;line-height:1.2;}
+.tile small{font-size:13px;color:var(--muted);line-height:1.3;margin:2px 0;}
+.tile .tnum{font-size:26px;font-weight:800;color:var(--blue);}
+.tile .tnum.red{color:var(--red);}
+.tile .tnum.amber{color:var(--amber);}
+.tile.priority-tile{border-color:#ffc4c0;border-left:3px solid var(--red);}
+
+/* ── Form fields ── */
+.field{margin-bottom:10px;}
+.field.error input,.field.error select,.field.error textarea{border-color:var(--red)!important;}
+.field-err{font-size:12px;color:var(--red);margin-top:3px;display:none;}
+.field.error .field-err{display:block;}
+label{display:block;font-size:13px;font-weight:600;margin-bottom:5px;color:#374151;}
+input,select,textarea{width:100%;border:1px solid var(--border);border-radius:12px;padding:10px 12px;font-size:15px;background:#fff;color:var(--dark);font-family:inherit;-webkit-appearance:none;}
+textarea{min-height:76px;resize:vertical;}
+input[readonly]{background:#f8fafc;color:#475569;}
+.prefilled{background:#f0f5ff!important;border-color:#c3d8f0!important;}
+.prefill-tag{font-size:11px;font-weight:600;color:var(--blue2);background:var(--soft);padding:2px 7px;border-radius:999px;margin-left:4px;vertical-align:middle;}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
+
+/* ── Buttons ── */
+.btnrow{display:flex;gap:8px;flex-wrap:wrap;}
+button{border:0;border-radius:13px;padding:12px 14px;font-weight:800;font-size:13px;cursor:pointer;background:var(--blue);color:#fff;font-family:inherit;}
+button.secondary{background:#e9eef5;color:var(--blue);}
+button.ghost{background:#fff;color:var(--blue);border:1px solid var(--border);}
+button.green{background:var(--green);color:#fff;}
+button.amber-btn{background:var(--amberBg);color:var(--amber);}
+button.sm{padding:8px 12px;font-size:12px;}
+button.link-btn{background:transparent;border:0;color:var(--blue2);font-size:13px;font-weight:600;cursor:pointer;padding:0;text-decoration:underline;font-family:inherit;}
+button.whatsapp{background:#25D366;color:#fff;}
+
+/* ── List items ── */
+.list-item{background:#fff;border:1px solid var(--border);border-radius:14px;padding:12px;margin-bottom:8px;cursor:pointer;}
+.list-item strong{display:block;font-size:14px;margin-bottom:2px;}
+.list-item span{font-size:13px;color:var(--muted);line-height:1.35;}
+.list-item.done{opacity:.45;}
+.list-item.nocursor{cursor:default;}
+.status-line{display:flex;align-items:center;justify-content:space-between;gap:8px;}
+
+/* ── Notices ── */
+.notice{border-radius:14px;padding:10px 12px;font-size:13px;line-height:1.35;margin-bottom:10px;border:1px solid var(--border);}
+.notice.green{background:var(--greenBg);color:var(--green);border-color:#bee8c1;}
+.notice.amber{background:var(--amberBg);color:var(--amber);border-color:#ffe0a6;}
+.notice.red{background:var(--redBg);color:var(--red);border-color:#ffc4c0;}
+.notice.blue{background:var(--soft);color:var(--blue2);border-color:#c3d8f0;}
+.notice.info{background:#f5f5f5;color:#444;border-color:#ddd;}
+
+/* ── Segments ── */
+.segment{display:grid;gap:5px;background:#e9eef5;border-radius:13px;padding:4px;margin-bottom:12px;}
+.segment.cols2{grid-template-columns:1fr 1fr;}
+.segment.cols3{grid-template-columns:1fr 1fr 1fr;}
+.segment button{background:transparent;color:var(--muted);padding:8px;font-weight:600;}
+.segment button.active{background:#fff;color:var(--blue);box-shadow:0 1px 3px rgba(0,0,0,.08);}
+
+/* ── Check cards (counts) ── */
+.check-card{border:1px solid var(--border);border-radius:14px;padding:10px 12px;margin-bottom:8px;background:#fff;cursor:pointer;transition:border-color .12s;}
+.check-card.selected{border-color:var(--blue);box-shadow:0 0 0 2px rgba(31,78,120,.1);}
+.check-card strong{font-size:14px;}
+.check-card .csub{font-size:13px;color:var(--muted);margin-top:3px;}
+.card-entry{margin-top:10px;border-top:1px solid var(--border);padding-top:10px;}
+
+/* ── Score grid ── */
+.score-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
+.score-total{font-size:22px;font-weight:800;}
+.score-total.green{color:var(--green);}
+.score-total.amber{color:var(--amber);}
+.score-total.red-col{color:var(--red);}
+
+/* ── Add-row forms ── */
+.add-row-form{background:var(--soft);border:1px solid var(--border);border-radius:14px;padding:12px;margin-bottom:10px;display:none;}
+.add-row-form.show{display:block;}
+
+/* ── Draft/Submit states ── */
+.draft-notice{background:#f8fafc;border:1px dashed #c3d8f0;border-radius:14px;padding:10px 12px;font-size:13px;color:var(--muted);margin-bottom:10px;}
+.draft-notice strong{color:var(--blue2);}
+.submit-actions{display:flex;gap:8px;flex-wrap:wrap;align-items:center;}
+
+/* ── Desk redirect ── */
+.desk-gate{text-align:center;padding:32px 20px;}
+.desk-gate .gate-icon{font-size:48px;margin-bottom:12px;}
+.desk-gate h2{font-size:20px;margin:0 0 8px;}
+.desk-gate p{font-size:13px;color:var(--muted);line-height:1.5;margin:0 0 20px;}
+.desk-gate .gate-badge{display:inline-flex;align-items:center;gap:6px;background:#f0f4f8;border:1px solid var(--border);border-radius:999px;padding:5px 12px;font-size:11px;font-weight:700;color:#374151;margin-bottom:16px;}
+
+/* ── Schedule (espresso) ── */
+.sched-row{display:flex;align-items:center;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border);font-size:13px;cursor:pointer;}
+.sched-row:last-child{border-bottom:none;}
+.sched-row.clickable:hover{opacity:.8;}
+.dot{width:8px;height:8px;border-radius:50%;display:inline-block;margin-right:7px;flex-shrink:0;}
+.dot.g{background:var(--green);}
+.dot.a{background:#f59e0b;}
+.dot.m{background:#d1d5db;}
+
+/* ── Table ── */
+.table{width:100%;border-collapse:separate;border-spacing:0 6px;font-size:13px;}
+.table th{text-align:left;color:var(--muted);font-size:12px;padding:0 9px 4px;}
+.table td{background:#fff;border-top:1px solid var(--border);border-bottom:1px solid var(--border);padding:9px;vertical-align:top;}
+.table td:first-child{border-left:1px solid var(--border);border-radius:10px 0 0 10px;}
+.table td:last-child{border-right:1px solid var(--border);border-radius:0 10px 10px 0;}
+
+/* ── Bottom nav ── */
+.bottomnav{position:fixed;left:50%;transform:translateX(-50%);bottom:0;width:100%;max-width:430px;background:#fff;border-top:1px solid var(--border);display:grid;grid-template-columns:repeat(5,1fr);padding:7px 4px 9px;z-index:30;box-shadow:0 -8px 25px rgba(0,0,0,.08);}
+.navbtn{background:transparent;color:var(--muted);border-radius:12px;padding:7px 3px;font-size:10px;font-weight:700;font-family:inherit;cursor:pointer;}
+.navbtn.active{color:var(--blue);background:#eef5fb;}
+.navbtn div{font-size:18px;line-height:1;margin-bottom:3px;}
+
+/* ── Toast ── */
+.toast{position:fixed;left:50%;transform:translateX(-50%);bottom:88px;background:#111827;color:#fff;padding:12px 16px;border-radius:999px;z-index:100;font-size:13px;opacity:0;pointer-events:none;transition:.2s;white-space:nowrap;max-width:360px;text-align:center;}
+.toast.show{opacity:1;}
+
+/* ── Modal ── */
+.modal{position:fixed;inset:0;background:rgba(0,0,0,.46);display:none;align-items:flex-end;justify-content:center;z-index:60;}
+.modal.show{display:flex;}
+.modal-box{background:#fff;width:100%;max-width:430px;border-top-left-radius:22px;border-top-right-radius:22px;padding:16px;max-height:82vh;overflow:auto;}
+.modal-box h2{margin:0 0 10px;font-size:18px;}
+.sharebox{white-space:pre-wrap;background:#f8fafc;border:1px solid var(--border);border-radius:14px;padding:12px;font-size:13px;line-height:1.6;font-family:ui-monospace,monospace;margin-bottom:12px;}
+
+/* ── Exception cards (Owner Summary) ── */
+.exc-card{display:flex;align-items:center;gap:12px;background:#fff;border:1px solid var(--border);border-radius:17px;padding:13px 14px;margin-bottom:10px;cursor:pointer;box-shadow:0 2px 8px rgba(0,0,0,.03);transition:box-shadow .12s;border-left:4px solid var(--border);}
+.exc-card:active{box-shadow:none;}
+.exc-card.exc-red{border-left-color:var(--red);}
+.exc-card.exc-amber{border-left-color:#f59e0b;}
+.exc-card.exc-green{border-left-color:var(--green);cursor:default;}
+.exc-card.exc-neutral{border-left-color:#9ca3af;}
+.exc-icon{font-size:20px;width:36px;height:36px;background:var(--soft);border-radius:10px;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.exc-body{flex:1;min-width:0;}
+.exc-body strong{display:block;font-size:14px;margin-bottom:2px;line-height:1.2;}
+.exc-body span{font-size:13px;color:var(--muted);line-height:1.3;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;}
+
+/* ── Misc ── */
+.small{font-size:13px;color:var(--muted);line-height:1.35;}
+.hidden{display:none!important;}
+.divider{height:1px;background:var(--border);margin:10px 0;}
+.mt10{margin-top:10px;}
+.span2{grid-column:1/-1;}
+
+/* ── Baked goods cards ── */
+.baked-card{border:1px solid var(--border);border-radius:14px;padding:12px;margin-bottom:8px;background:#fff;cursor:pointer;transition:border-color .12s;border-left:4px solid var(--border);}
+.baked-card.selected{border-color:var(--blue);box-shadow:0 0 0 2px rgba(31,78,120,.1);}
+.baked-card.done{border-left-color:var(--green);cursor:default;}
+.baked-card.no-change{border-left-color:#9ca3af;opacity:.72;cursor:default;}
+.baked-card-header{display:flex;align-items:flex-start;justify-content:space-between;gap:8px;}
+.baked-card-header strong{font-size:14px;display:block;margin-bottom:2px;}
+.baked-entry{display:none;margin-top:10px;border-top:1px solid var(--border);padding-top:10px;}
+.baked-card.selected .baked-entry{display:block;}
+.baked-waste{margin-bottom:10px;}
+
+/* ── Location header (counts All locations view) ── */
+.location-header{font-size:11px;font-weight:700;color:var(--blue2);text-transform:uppercase;letter-spacing:.06em;padding:10px 2px 4px;margin-top:2px;border-bottom:1px solid var(--border);margin-bottom:6px;}
+.location-header:first-child{padding-top:0;}
+
+/* ── Role gating ── */
+[data-role="supervisor"] .mgr-only{display:none!important;}
+
+@media(min-width:760px){
+  body{padding:24px;}
+  .shell{border-radius:28px;overflow:hidden;min-height:880px;}
+  .bottomnav{bottom:24px;border-bottom-left-radius:28px;border-bottom-right-radius:28px;}
+}
+</style>
+</head>
+<body data-role="manager">
+<div class="shell">
+
+<!-- ══ TOPBAR ══ -->
+<div class="topbar">
+  <div class="topline">
+    <div>
+      <div class="logo">Ritmise</div>
+      <div class="meta-row">
+        <span class="meta">Aroma · Tuesday 26 Apr</span>
+        <span id="syncPill" class="sync-pill online" onclick="toggleOffline()" title="Tap to simulate offline">● Online</span>
+      </div>
+    </div>
+    <select class="role-select" onchange="setRole(this.value)">
+      <option value="manager">Manager</option>
+      <option value="supervisor">Captain</option>
+      <option value="owner">Owner / Admin</option>
+    </select>
+  </div>
+</div>
+
+<!-- ══ HOME ══ -->
+<section id="home" class="screen active">
+  <div class="page-title"><div><h1>Today</h1><p>4:42 PM · Tuesday 26 Apr 2026</p></div></div>
+  <!-- Priority banner — shown when something urgent is overdue -->
+  <div class="priority-banner" id="priority-banner">
+    <div class="priority-dot"></div>
+    <div class="priority-content">
+      <strong>Captain Report not yet submitted</strong>
+      <span>End of shift approaching — Krystal needs to submit before handoff.</span>
+    </div>
+    <button onclick="go('report')">Submit →</button>
+  </div>
+  <div class="grid2">
+    <div class="tile" onclick="go('daily')">
+      <strong>Daily Plan</strong>
+      <small>Krystal · Red Zone 11:30–2:30</small>
+      <span class="badge green">Done</span>
+    </div>
+    <div class="tile priority-tile" onclick="go('report')">
+      <strong>Captain Report</strong>
+      <small>Not yet submitted</small>
+      <span class="badge red">Missing</span>
+    </div>
+    <div class="tile" onclick="go('espresso')">
+      <strong>Espresso Checks</strong>
+      <small>2 of 5 done today</small>
+      <span class="badge amber">3 pending</span>
+    </div>
+    <div class="tile" onclick="go('tasks')">
+      <strong>Tasks</strong>
+      <small>3 open · 1 overdue</small>
+      <div class="tnum red">3</div>
+    </div>
+    <div class="tile mgr-only" onclick="go('more-hub')">
+      <strong>Owner Summary</strong>
+      <small>6 issues flagged</small>
+      <span class="badge red">View in Desk</span>
+    </div>
+    <div class="tile" onclick="go('delivery')">
+      <strong>Receiving</strong>
+      <small>GFS · 1 unresolved issue</small>
+      <span class="badge red">Follow up</span>
+    </div>
+  </div>
+</section>
+
+<!-- ══ PLAN HUB ══ -->
+<section id="plan-hub" class="screen">
+  <div class="page-title"><div><h1>Plan</h1><p>Daily setup and shift wrap-up.</p></div></div>
+  <div class="hub-tile" onclick="go('daily')">
+    <div class="hub-icon">🗓️</div>
+    <div class="hub-text"><strong>Daily Plan</strong><small>Stations, red zone, breaks, timed actions</small></div>
+    <span class="hub-arrow">›</span>
+  </div>
+  <div class="hub-tile" onclick="go('report')">
+    <div class="hub-icon">📝</div>
+    <div class="hub-text"><strong>Captain Report</strong><small>10 scores, timing, carry-forward issues</small></div>
+    <span class="hub-arrow">›</span>
+  </div>
+</section>
+
+<!-- ══ DAILY PLAN ══ -->
+<section id="daily" class="screen">
+  <div class="breadcrumb"><button onclick="go('plan-hub')">← Plan</button><span>/</span><span>Daily Plan</span></div>
+  <div class="page-title"><div><h1>Daily Plan</h1></div><span class="badge green">one per day</span></div>
+  <div class="notice amber">If today's plan already exists, open it to edit — do not submit a duplicate.</div>
+
+  <div class="card">
+    <h2>Day setup</h2>
+    <div class="row">
+      <div class="field" id="f-plan-date">
+        <label>Date *</label>
+        <input type="date" id="plan-date" value="2026-04-26"/>
+        <div class="field-err">Required</div>
+      </div>
+      <div class="field" id="f-plan-captain">
+        <label>Captain *</label>
+        <select id="plan-captain">
+          <option value="">Select…</option>
+          <option>Krystal</option><option>Mackenzie</option><option>Tommaso</option>
+        </select>
+        <div class="field-err">Required</div>
+      </div>
+    </div>
+    <div class="row">
+      <div class="field"><label>Red zone start</label><input type="time" value="11:30"/></div>
+      <div class="field"><label>Red zone end</label><input type="time" value="14:30"/></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>Stations</h2>
+    <div class="row">
+      <div class="field"><label>Cash</label><select><option>Mackenzie</option><option>Cecilia</option><option>Yosef</option></select></div>
+      <div class="field"><label>Bar</label><select><option>Cameron</option><option>Tommaso</option><option>Krystal</option></select></div>
+    </div>
+    <div class="row">
+      <div class="field"><label>Dispatch</label><select><option>Krystal</option><option>Gurpreet</option><option>Vakeeran</option></select></div>
+      <div class="field"><label>Dish / Dining</label><select><option>Gurpreet</option><option>Vakeeran</option><option>Cecilia</option></select></div>
+    </div>
+    <div class="field"><label>Floater</label><select><option>Cecilia</option><option>Vakeeran</option><option>Yosef</option></select></div>
+  </div>
+
+  <div class="card">
+    <h2>Planned breaks</h2>
+    <div id="break-list">
+      <div class="list-item nocursor"><strong>Mackenzie</strong><span>11:00–11:20 · Cover: Cecilia</span></div>
+      <div class="list-item nocursor"><strong>Cameron</strong><span>12:30–12:50 · Cover: Tommaso</span></div>
+    </div>
+    <div id="add-break-form" class="add-row-form">
+      <div class="row">
+        <div class="field">
+          <label>Staff member</label>
+          <select id="break-staff"><option>Krystal</option><option>Tommaso</option><option>Mackenzie</option><option>Cecilia</option><option>Cameron</option><option>Gurpreet</option><option>Vakeeran</option><option>Yosef</option></select>
+        </div>
+        <div class="field"><label>Break start</label><input type="time" id="break-time"/></div>
+      </div>
+      <div class="field">
+        <label>Cover (optional)</label>
+        <select id="break-cover"><option value="">None</option><option>Krystal</option><option>Tommaso</option><option>Mackenzie</option><option>Cecilia</option><option>Cameron</option></select>
+      </div>
+      <div class="btnrow">
+        <button class="sm green" onclick="saveBreak()">Add break</button>
+        <button class="sm secondary" onclick="cancelForm('add-break-form')">Cancel</button>
+      </div>
+    </div>
+    <button class="secondary sm" onclick="showForm('add-break-form')">+ Add break</button>
+  </div>
+
+  <div class="card">
+    <h2>Catering / events</h2>
+    <div class="field"><textarea id="catering-note" placeholder="e.g. Private booking 1 PM · 20 covers · pre-paid"></textarea></div>
+  </div>
+
+  <div class="card">
+    <h2>Timed actions</h2>
+    <div id="timed-list">
+      <div class="list-item nocursor"><strong>10:45 AM</strong><span>FOH cooler refill before lunch</span></div>
+      <div class="list-item nocursor"><strong>2:45 PM</strong><span>Post-rush reset: dining, patio, washrooms, baked goods check</span></div>
+    </div>
+    <div id="add-action-form" class="add-row-form">
+      <div class="row">
+        <div class="field"><label>Time</label><input type="time" id="new-action-time"/></div>
+        <div class="field"><label>Description</label><input type="text" id="new-action-desc" placeholder="What happens"/></div>
+      </div>
+      <div class="btnrow">
+        <button class="sm green" onclick="saveTimedAction()">Add</button>
+        <button class="sm secondary" onclick="cancelForm('add-action-form')">Cancel</button>
+      </div>
+    </div>
+    <button class="secondary sm" onclick="showForm('add-action-form')">+ Add action</button>
+  </div>
+
+  <div class="card">
+    <h2>Operating note</h2>
+    <div class="field"><textarea>Stations locked during red zone. Handoff by name before anyone leaves a station.</textarea></div>
+    <div class="draft-notice">
+      <strong>Draft</strong> — not yet submitted. Save draft anytime. Submit when the plan is final.
+    </div>
+    <div class="submit-actions">
+      <button onclick="submitPlan()">Submit Plan</button>
+      <button class="secondary" onclick="toast('Draft saved')">Save Draft</button>
+    </div>
+    <div id="plan-submitted" class="notice green hidden mt10">
+      ✓ Plan submitted · <span id="plan-sync">Synced · No ERPNext write on Daily Plan</span>
+      <div style="margin-top:8px"><button class="whatsapp sm" onclick="showWhatsApp('plan')">Copy for WhatsApp</button></div>
+    </div>
+  </div>
+</section>
+
+<!-- ══ CAPTAIN REPORT ══ -->
+<section id="report" class="screen">
+  <div class="breadcrumb"><button onclick="go('plan-hub')">← Plan</button><span>/</span><span>Captain Report</span></div>
+  <div class="page-title"><div><h1>Captain Report</h1></div><span class="badge amber">end-of-shift</span></div>
+
+  <div class="card">
+    <h2>Shift summary</h2>
+    <div class="row">
+      <div class="field"><label>Date</label><input type="date" value="2026-04-26"/></div>
+      <div class="field" id="f-report-captain">
+        <label>Captain *</label>
+        <select id="report-captain"><option value="">Select…</option><option>Krystal</option><option>Mackenzie</option><option>Tommaso</option></select>
+        <div class="field-err">Required</div>
+      </div>
+    </div>
+    <div class="row">
+      <div class="field"><label>Service opened</label><input type="time" value="07:30"/></div>
+      <div class="field"><label>Red zone started</label><input type="time" value="11:35"/></div>
+    </div>
+    <div class="row">
+      <div class="field"><label>Stations kept?</label><select><option>Partial</option><option>Yes</option><option>No</option></select></div>
+      <div class="field"><label>Handoff by name?</label><select><option>Yes</option><option>No</option><option>N/A</option></select></div>
+    </div>
+    <p class="small" style="margin:4px 0 0">View <button class="link-btn" onclick="go('daily')">today's plan →</button></p>
+  </div>
+
+  <div class="card">
+    <div class="status-line" style="margin-bottom:10px">
+      <div>
+        <h2 style="margin:0">Scores</h2>
+        <div class="small">out of 10 each · auto-total below</div>
+      </div>
+      <div id="score-total" class="score-total amber">69 / 100</div>
+    </div>
+    <div class="score-grid">
+      <div class="field"><label>Team energy</label><input type="number" min="0" max="10" value="7" oninput="calcTotal()"/></div>
+      <div class="field"><label>Red zone held</label><input type="number" min="0" max="10" value="6" oninput="calcTotal()"/></div>
+      <div class="field"><label>Cash station</label><input type="number" min="0" max="10" value="8" oninput="calcTotal()"/></div>
+      <div class="field"><label>Bar station</label><input type="number" min="0" max="10" value="8" oninput="calcTotal()"/></div>
+      <div class="field"><label>Dispatch station</label><input type="number" min="0" max="10" value="6" oninput="calcTotal()"/></div>
+      <div class="field"><label>Dish / Dining</label><input type="number" min="0" max="10" value="7" oninput="calcTotal()"/></div>
+      <div class="field"><label>Station discipline</label><input type="number" min="0" max="10" value="6" oninput="calcTotal()"/></div>
+      <div class="field"><label>Cleaning standards</label><input type="number" min="0" max="10" value="7" oninput="calcTotal()"/></div>
+      <div class="field"><label>Customer experience</label><input type="number" min="0" max="10" value="7" oninput="calcTotal()"/></div>
+      <div class="field"><label>Stock awareness</label><input type="number" min="0" max="10" value="7" oninput="calcTotal()"/></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>Carry-forward issues</h2>
+    <div id="issue-list">
+      <div class="list-item nocursor"><strong>Patio reset after close</strong><span>Area: Patio · Tonight · Responsible: Gurpreet</span></div>
+      <div class="list-item nocursor"><strong>Check croissant carry-over</strong><span>Area: Baked goods · Next morning · Responsible: Krystal</span></div>
+    </div>
+    <div id="add-issue-form" class="add-row-form">
+      <div class="field"><label>Issue</label><input type="text" id="new-issue-title" placeholder="Describe the issue"/></div>
+      <div class="row">
+        <div class="field"><label>Area / station</label><input type="text" id="new-issue-area" placeholder="e.g. Bar"/></div>
+        <div class="field"><label>Responsible</label><select id="new-issue-person"><option>Krystal</option><option>Tommaso</option><option>Mackenzie</option><option>Cecilia</option><option>Cameron</option><option>Gurpreet</option><option>Vakeeran</option><option>Yosef</option></select></div>
+      </div>
+      <div class="btnrow">
+        <button class="sm green" onclick="saveIssue()">Add</button>
+        <button class="sm secondary" onclick="cancelForm('add-issue-form')">Cancel</button>
+      </div>
+    </div>
+    <button class="secondary sm" onclick="showForm('add-issue-form')">+ Add issue</button>
+  </div>
+
+  <div class="card">
+    <h2>Honest narrative</h2>
+    <div class="field"><textarea>Lunch rush was manageable but Dispatch needed stronger ownership from 12:10–1:15. Patio was clean at handoff. Croissants ran out at 12:15 — prep shortfall from morning.</textarea></div>
+    <div class="draft-notice"><strong>Draft</strong> — submit when complete to generate share text.</div>
+    <div class="submit-actions">
+      <button onclick="submitReport()">Submit Report</button>
+      <button class="secondary" onclick="toast('Draft saved')">Save Draft</button>
+    </div>
+    <div id="report-submitted" class="notice green hidden mt10">
+      ✓ Report submitted
+      <div style="margin-top:8px"><button class="whatsapp sm" onclick="showWhatsApp('report')">Copy for WhatsApp</button></div>
+    </div>
+  </div>
+</section>
+
+<!-- ══ OPS HUB ══ -->
+<section id="ops-hub" class="screen">
+  <div class="page-title"><div><h1>Operations</h1><p>Live tracking and daily entries.</p></div></div>
+  <div class="hub-tile" onclick="go('counts')"><div class="hub-icon">🧮</div><div class="hub-text"><strong>Critical Counts</strong><small>Stock counts by storage location</small></div><span class="hub-arrow">›</span></div>
+  <div class="hub-tile" onclick="go('baked')"><div class="hub-icon">🥐</div><div class="hub-text"><strong>Baked Goods</strong><small>Carry-over, added, remaining, waste</small></div><span class="hub-arrow">›</span></div>
+  <div class="hub-tile" onclick="go('waste')"><div class="hub-icon">🗑️</div><div class="hub-text"><strong>Waste</strong><small>Log loss with reason</small></div><span class="hub-arrow">›</span></div>
+  <div class="hub-tile" onclick="go('stockout')"><div class="hub-icon">⚠️</div><div class="hub-text"><strong>Stockout</strong><small>Record unavailable items</small></div><span class="hub-arrow">›</span></div>
+  <div class="hub-tile" onclick="go('espresso')"><div class="hub-icon">☕</div><div class="hub-text"><strong>Espresso Checks</strong><small>Every 2 hours from opening</small></div><span class="hub-arrow">›</span></div>
+</section>
+
+<!-- ══ CRITICAL COUNTS ══ -->
+<section id="counts" class="screen">
+  <div class="breadcrumb"><button onclick="go('ops-hub')">← Ops</button><span>/</span><span>Critical Counts</span></div>
+  <div class="page-title"><div><h1>Critical Counts</h1></div></div>
+  <div class="notice blue">On submit, a Stock Reconciliation is created automatically in ERPNext. Count is authoritative.</div>
+  <div class="card">
+    <div class="row">
+      <div class="field">
+        <label>Storage location</label>
+        <select id="count-location" onchange="loadCountItems()">
+          <option value="All locations">All locations</option>
+          <option>Walk-in Cooler</option><option>Walk-in Freezer</option>
+          <option>FOH Cooler</option><option>Dry Storage</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>Counted by *</label>
+        <select id="count-by">
+          <option value="">Select…</option>
+          <option>Krystal</option><option>Tommaso</option><option>Mackenzie</option>
+          <option>Cecilia</option><option>Cameron</option><option>Gurpreet</option>
+          <option>Vakeeran</option><option>Yosef</option>
+        </select>
+      </div>
+    </div>
+    <div class="segment cols2" style="margin-bottom:0">
+      <button id="mode-critical" class="active" onclick="setCountMode('critical',this)">Critical only</button>
+      <button id="mode-all" onclick="setCountMode('all',this)">All items</button>
+    </div>
+  </div>
+  <div class="card">
+    <h2>Select item · tap to enter count</h2>
+    <div id="count-items"><!-- populated by JS --></div>
+  </div>
+</section>
+
+<!-- ══ BAKED GOODS ══ -->
+<section id="baked" class="screen">
+  <div class="breadcrumb"><button onclick="go('ops-hub')">← Ops</button><span>/</span><span>Baked Goods</span></div>
+  <div class="page-title">
+    <div><h1>Baked Goods</h1></div>
+    <span id="baked-progress" class="badge">0 / 14</span>
+  </div>
+  <div class="card">
+    <div class="field">
+      <label>Checked by *</label>
+      <select id="baked-checked-by">
+        <option value="">Select…</option>
+        <option>Krystal</option><option>Tommaso</option><option>Mackenzie</option>
+        <option>Cecilia</option><option>Cameron</option>
+      </select>
+    </div>
+    <div class="notice blue" style="margin-bottom:0">Carry-over prefilled from yesterday. Tap each item to enter today's numbers. Use "No production" for items not made today.</div>
+  </div>
+  <div id="baked-list"><!-- populated by JS --></div>
+</section>
+
+<!-- ══ WASTE ══ -->
+<section id="waste" class="screen">
+  <div class="breadcrumb"><button onclick="go('ops-hub')">← Ops</button><span>/</span><span>Waste</span></div>
+  <div class="page-title"><div><h1>Waste</h1></div></div>
+  <div class="notice info">Waste entries don't update stock directly. Stock is updated when the next Count Entry is submitted.</div>
+  <div class="card">
+    <div class="row">
+      <div class="field">
+        <label>Logged by</label>
+        <select><option>Krystal</option><option>Tommaso</option><option>Mackenzie</option><option>Cecilia</option><option>Cameron</option><option>Gurpreet</option><option>Vakeeran</option><option>Yosef</option></select>
+      </div>
+      <div class="field"><label>Time</label><input type="time" value="16:30"/></div>
+    </div>
+    <div class="field">
+      <label>Item</label>
+      <select><option>Butter Croissant</option><option>Chocolate Croissant</option><option>Brownie</option><option>Spanakopita</option><option>Whole Milk</option><option>Almond Milk</option><option>Cream</option><option>Iced Tea Syrup</option></select>
+    </div>
+    <div class="row">
+      <div class="field"><label>Quantity</label><input type="number" value="4"/></div>
+      <div class="field"><label>Unit</label><select><option>pcs</option><option>L</option><option>kg</option></select></div>
+    </div>
+    <div class="field">
+      <label>Category *</label>
+      <select id="wasteCat" onchange="wasteGuidance()">
+        <option>Overproduction</option><option>Spoilage / Stale</option><option>Wrongly Made</option>
+        <option>Damaged / Broken</option><option>Expired / No Longer Usable</option>
+        <option>Improper Freshness Labeling</option><option>Other</option>
+      </select>
+    </div>
+    <div id="wasteGuide" class="notice blue">Too much was made or put out.</div>
+    <div class="field"><label>Note (optional)</label><textarea></textarea></div>
+    <button onclick="toast('Waste entry saved')">Save Waste Entry</button>
+  </div>
+</section>
+
+<!-- ══ STOCKOUT ══ -->
+<section id="stockout" class="screen">
+  <div class="breadcrumb"><button onclick="go('ops-hub')">← Ops</button><span>/</span><span>Stockout</span></div>
+  <div class="page-title"><div><h1>Stockout</h1></div></div>
+  <div class="card">
+    <div class="field">
+      <label>Logged by</label>
+      <select><option>Krystal</option><option>Tommaso</option><option>Mackenzie</option><option>Cecilia</option><option>Cameron</option><option>Gurpreet</option><option>Vakeeran</option><option>Yosef</option></select>
+    </div>
+    <div class="field"><label>Time</label><input type="time" value="12:15"/></div>
+    <div class="field">
+      <label>Item</label>
+      <select><option>Butter Croissant</option><option>Chocolate Croissant</option><option>Brownie</option><option>Spanakopita</option><option>Whole Milk</option><option>Almond Milk</option><option>Iced Tea Syrup</option></select>
+    </div>
+    <div class="field">
+      <label>Likely cause *</label>
+      <select><option>Prep / Bake Shortfall</option><option>Not Ordered</option><option>Delivery Short / Missing</option><option>Delayed Order</option><option>Restocking Missed</option><option>Unexpected Demand</option><option>Counting Error</option><option>Item Spoiled / Not Usable</option><option>Other</option></select>
+    </div>
+    <div class="field">
+      <label>Resolved?</label>
+      <select><option>No — active</option><option>Yes — substitution offered</option><option>Yes — item restocked</option></select>
+    </div>
+    <div class="field"><label>Note (optional)</label><textarea>Ran out during lunch rush.</textarea></div>
+    <button onclick="toast('Stockout saved')">Save Stockout</button>
+  </div>
+</section>
+
+<!-- ══ ESPRESSO CHECK ══ -->
+<section id="espresso" class="screen">
+  <div class="breadcrumb"><button onclick="go('ops-hub')">← Ops</button><span>/</span><span>Espresso Checks</span></div>
+  <div class="page-title"><div><h1>Espresso Checks</h1></div><span class="badge amber">2 / 5 done</span></div>
+  <div class="card">
+    <h2>Today's schedule</h2>
+    <div class="small" style="margin-bottom:8px">Tap a missed or pending slot to pre-fill the time below.</div>
+    <div class="sched-row"><span><span class="dot g"></span>7:30 AM</span><span class="badge green sm">Done · Cameron</span></div>
+    <div class="sched-row"><span><span class="dot g"></span>9:30 AM</span><span class="badge green sm">Done · Tommaso</span></div>
+    <div class="sched-row clickable" onclick="prefillEspresso('11:30')"><span><span class="dot a"></span>11:30 AM</span><span class="badge amber sm">Missed — tap to log late</span></div>
+    <div class="sched-row clickable" onclick="prefillEspresso('13:30')"><span><span class="dot m"></span>1:30 PM</span><span class="badge sm">Pending — tap to log</span></div>
+    <div class="sched-row clickable" onclick="prefillEspresso('15:30')"><span><span class="dot m"></span>3:30 PM</span><span class="badge sm">Pending</span></div>
+  </div>
+  <div id="espressoWarn" class="notice amber hidden">⚠ One blend has dose entered but no extraction time.</div>
+  <div class="card" id="espresso-form">
+    <h2>New check</h2>
+    <div class="row">
+      <div class="field"><label>Checked by</label><select><option>Cameron</option><option>Tommaso</option><option>Krystal</option><option>Mackenzie</option></select></div>
+      <div class="field"><label>Time</label><input id="espresso-time" type="time" value="13:30"/></div>
+    </div>
+    <details open>
+      <summary style="font-size:14px;font-weight:700;cursor:pointer;padding:8px 0;list-style:none">▸ Espresso blend</summary>
+      <div class="row" style="margin-top:6px">
+        <div class="field"><label>Dose (g)</label><input type="number" value="18"/></div>
+        <div class="field"><label>Extraction (s)</label><input type="number" value="28"/></div>
+      </div>
+    </details>
+    <details>
+      <summary style="font-size:14px;font-weight:700;cursor:pointer;padding:8px 0;color:var(--muted);list-style:none">▸ Cappuccino</summary>
+      <div class="row" style="margin-top:6px">
+        <div class="field"><label>Dose (g)</label><input type="number"/></div>
+        <div class="field"><label>Extraction (s)</label><input type="number"/></div>
+      </div>
+    </details>
+    <details>
+      <summary style="font-size:14px;font-weight:700;cursor:pointer;padding:8px 0;color:var(--muted);list-style:none">▸ Decaf</summary>
+      <div class="row" style="margin-top:6px">
+        <div class="field"><label>Dose (g)</label><input id="decafDose" oninput="espressoCheck()" type="number"/></div>
+        <div class="field"><label>Extraction (s)</label><input id="decafTime" oninput="espressoCheck()" type="number"/></div>
+      </div>
+    </details>
+    <div style="margin-top:10px"><button onclick="toast('Espresso check saved')">Save Check</button></div>
+  </div>
+</section>
+
+<!-- ══ ORDERS HUB ══ -->
+<section id="orders-hub" class="screen">
+  <div class="page-title"><div><h1>Orders &amp; Receiving</h1><p>Register orders, check deliveries, enter invoices in Desk.</p></div></div>
+  <div class="hub-tile" onclick="go('delivery')">
+    <div class="hub-icon">🚚</div>
+    <div class="hub-text"><strong>Delivery Check</strong><small>Confirm receipt · log issues</small></div>
+    <span class="hub-arrow">›</span>
+  </div>
+  <div class="hub-tile" onclick="go('purchase')">
+    <div class="hub-icon">📋</div>
+    <div class="hub-text"><strong>Register Order</strong><small>Log a supplier order placed</small></div>
+    <span class="hub-arrow">›</span>
+  </div>
+  <div class="hub-tile desk-tile mgr-only" onclick="go('invoice')">
+    <div class="hub-icon desk">🖥️</div>
+    <div class="hub-text"><strong>Invoice Entry <span class="badge sm">Desk</span></strong><small>Match and confirm in Frappe Desk</small></div>
+    <span class="hub-arrow">›</span>
+  </div>
+</section>
+
+<!-- ══ DELIVERY CHECK ══ -->
+<section id="delivery" class="screen">
+  <div class="breadcrumb"><button onclick="go('orders-hub')">← Orders</button><span>/</span><span>Delivery Check</span></div>
+  <div class="page-title"><div><h1>Delivery Check</h1></div></div>
+  <div class="card">
+    <div class="field">
+      <label>Order reference</label>
+      <select id="del-order" onchange="loadOrderRef()">
+        <option value="gfs">GFS — $460 — Tomorrow morning</option>
+        <option value="bondi">Bondi — $220 — Today afternoon</option>
+        <option value="none">No registered order</option>
+      </select>
+    </div>
+    <div class="row">
+      <div class="field"><label>Supplier</label><input id="del-supplier" readonly value="GFS"/></div>
+      <div class="field"><label>Checked by *</label><select><option>Krystal</option><option>Tommaso</option><option>Mackenzie</option></select></div>
+    </div>
+    <div class="field"><label>Delivered by (optional)</label><input placeholder="Driver name or rep"/></div>
+    <div class="field">
+      <label>Any issues?</label>
+      <select id="del-issue" onchange="issueToggle()">
+        <option value="no">No — all good</option>
+        <option value="yes">Yes — log an issue</option>
+      </select>
+    </div>
+    <div id="issueFields" class="hidden">
+      <div class="field">
+        <label>Issue type</label>
+        <select><option>Quantity Short</option><option>Item Missing</option><option>Wrong Item</option><option>Damaged / Unacceptable</option><option>Extra Product</option><option>Invoice Missing</option><option>Other</option></select>
+      </div>
+      <div class="field"><label>Issue note *</label><textarea placeholder="Describe the issue"></textarea></div>
+    </div>
+    <div class="field">
+      <label>Invoice state</label>
+      <select id="del-invoice-state"><option>Received with delivery</option><option>Online / email</option><option>Comes later</option><option>Not received yet</option></select>
+    </div>
+    <div class="field">
+      <label>Any returns?</label>
+      <select id="del-returned" onchange="returnToggle()"><option value="no">No</option><option value="yes">Yes</option></select>
+    </div>
+    <div id="returnNote" class="field hidden"><label>Return note</label><textarea placeholder="What was returned and why"></textarea></div>
+    <button onclick="saveDelivery()">Submit Delivery Check</button>
+    <div id="del-saved" class="hidden mt10"></div>
+  </div>
+</section>
+
+<!-- ══ ORDER REGISTRATION ══ -->
+<section id="purchase" class="screen">
+  <div class="breadcrumb"><button onclick="go('orders-hub')">← Orders</button><span>/</span><span>Register Order</span></div>
+  <div class="page-title"><div><h1>Register Order</h1></div></div>
+  <div class="card">
+    <div class="field"><label>Supplier *</label><select><option>GFS</option><option>Mr. Dairy</option><option>Bondi</option><option>Metro Tea</option></select></div>
+    <div class="row">
+      <div class="field"><label>Date placed</label><input type="date" value="2026-04-26"/></div>
+      <div class="field"><label>Time placed</label><input type="time" value="09:30"/></div>
+    </div>
+    <div class="row">
+      <div class="field"><label>Expected delivery</label><input value="Tomorrow morning"/></div>
+      <div class="field"><label>Order amount ($) *</label><input type="number" value="460"/></div>
+    </div>
+    <div class="field"><label>Placed by</label><select><option>Tommaso</option><option>Krystal</option><option>Mackenzie</option></select></div>
+    <div class="field"><label>Confirmation / ref # (optional)</label><input placeholder="e.g. GFS-ORD-2381"/></div>
+    <div class="field"><label>Note (optional)</label><textarea></textarea></div>
+    <button onclick="registerOrder()">Submit Order Registration</button>
+    <div id="poBadge" class="hidden mt10"></div>
+  </div>
+</section>
+
+<!-- ══ INVOICE — DESK REDIRECT ══ -->
+<section id="invoice" class="screen">
+  <div class="breadcrumb"><button onclick="go('orders-hub')">← Orders</button><span>/</span><span>Invoice Entry</span></div>
+  <div class="desk-gate">
+    <div class="gate-icon">🖥️</div>
+    <div class="gate-badge">Frappe Desk only</div>
+    <h2>Invoice Entry</h2>
+    <p>Invoice Entry requires Manager confirmation before submission to ERPNext. Open the Ritmise Operations workspace in your desktop browser to complete this step.</p>
+    <p class="small">Price deviations from the order amount require a note and Manager approval before the invoice can be submitted.</p>
+    <button onclick="toast('Open Ritmise Operations → Invoice Entry in your desktop browser')">Open in Desk →</button>
+  </div>
+</section>
+
+<!-- ══ MORE HUB ══ -->
+<section id="more-hub" class="screen">
+  <div class="page-title"><div><h1>More</h1></div></div>
+  <div class="hub-tile" onclick="go('tasks')">
+    <div class="hub-icon">✅</div>
+    <div class="hub-text"><strong>Tasks</strong><small>Follow-up ownership · captain and above</small></div>
+    <span class="hub-arrow">›</span>
+  </div>
+  <div class="hub-tile desk-tile mgr-only" onclick="go('summary')">
+    <div class="hub-icon desk">🖥️</div>
+    <div class="hub-text"><strong>Owner Summary <span class="badge sm">Desk</span></strong><small>Live exception view · Frappe Desk</small></div>
+    <span class="hub-arrow">›</span>
+  </div>
+  <div class="hub-tile desk-tile mgr-only" onclick="go('batch')">
+    <div class="hub-icon desk">🖥️</div>
+    <div class="hub-text"><strong>Batch Import <span class="badge sm">Desk</span></strong><small>Frappe Data Import tool</small></div>
+    <span class="hub-arrow">›</span>
+  </div>
+  <div class="hub-tile desk-tile mgr-only" onclick="go('settings')">
+    <div class="hub-icon desk">🖥️</div>
+    <div class="hub-text"><strong>Settings <span class="badge sm">Desk</span></strong><small>Items, staff, warehouses · Frappe Desk</small></div>
+    <span class="hub-arrow">›</span>
+  </div>
+</section>
+
+<!-- ══ TASKS ══ -->
+<section id="tasks" class="screen">
+  <div class="breadcrumb"><button onclick="go('more-hub')">← More</button><span>/</span><span>Tasks</span></div>
+  <div class="page-title"><div><h1>Tasks</h1><p class="small" style="color:var(--muted)">Captain and above · Create in Desk</p></div></div>
+  <div class="notice info">Tasks are created by managers in Frappe Desk. Use this view to check progress and mark tasks done.</div>
+  <div class="segment cols3">
+    <button class="active" onclick="filterTasks('all',this)">All</button>
+    <button onclick="filterTasks('open',this)">Open</button>
+    <button onclick="filterTasks('urgent',this)">Urgent</button>
+  </div>
+  <div id="task-list">
+    <div class="list-item" data-status="open" data-priority="urgent" onclick="openTask('Fix sticky community table','Tommaso','Urgent','Open','Today')">
+      <div class="status-line"><strong>Fix sticky community table</strong><span class="badge red">Urgent</span></div>
+      <span>Assigned: Tommaso · Due: Today · Overdue</span>
+    </div>
+    <div class="list-item" data-status="in-progress" data-priority="high" onclick="openTask('Review freezer labels','Lanka','High','In Progress','Tomorrow')">
+      <div class="status-line"><strong>Review freezer labels</strong><span class="badge amber">High</span></div>
+      <span>Assigned: Lanka · Due: Tomorrow · In Progress</span>
+    </div>
+    <div class="list-item" data-status="open" data-priority="normal" onclick="openTask('Update pastry sign','Krystal','Normal','Open','No due date')">
+      <div class="status-line"><strong>Update pastry sign</strong><span class="badge">Normal</span></div>
+      <span>Assigned: Krystal · Open</span>
+    </div>
+    <div class="list-item done" data-status="done" data-priority="normal" onclick="toast('Already completed')">
+      <div class="status-line"><strong>Restock bar napkins</strong><span class="badge green">Done</span></div>
+      <span>Completed by: Cecilia · Yesterday</span>
+    </div>
+  </div>
+  <div id="tasks-empty" class="hidden" style="text-align:center;padding:24px;color:var(--muted);font-size:13px">No tasks in this view.</div>
+</section>
+
+<!-- ══ OWNER SUMMARY ══ -->
+<section id="summary" class="screen">
+  <div class="breadcrumb"><button onclick="go('more-hub')">← More</button><span>/</span><span>Owner Summary</span></div>
+  <div class="page-title">
+    <div><h1>Owner Summary</h1><p>Tuesday 26 Apr · Last refreshed 4:42 PM</p></div>
+    <button class="secondary sm" onclick="toast('Summary refreshed')">Refresh</button>
+  </div>
+
+  <!-- Exception cards — what needs attention today -->
+  <div class="exc-card exc-red" onclick="openModal('Captain Report Missing','<div class=\'notice red\'>Captain Report has not been submitted for today.<br><br>Captain: Krystal<br>Shift ends in approx. 90 minutes.</div><button class=\'green\' style=\'width:100%;margin-top:10px\' onclick=\'go(\\\'report\\\');closeModal()\'>Go to Captain Report →</button>')">
+    <div class="exc-icon">📝</div>
+    <div class="exc-body">
+      <strong>Captain Report missing</strong>
+      <span>Not yet submitted · Krystal · shift ends soon</span>
+    </div>
+    <span class="badge red">Act</span>
+  </div>
+
+  <div class="exc-card exc-red" onclick="openModal('Open Issues (6)','<div class=\'list-item nocursor\'><strong>Patio reset not done</strong><span>Gurpreet · Tonight</span></div><div class=\'list-item nocursor\'><strong>Espresso check missed — 11:30 AM</strong><span>Cameron · Today</span></div><div class=\'list-item nocursor\'><strong>Fix sticky community table</strong><span>Tommaso · Overdue</span></div><div class=\'list-item nocursor\'><strong>Croissant carry-over check</strong><span>Krystal · Tomorrow morning</span></div><div class=\'list-item nocursor\'><strong>Review freezer labels</strong><span>Lanka · In progress</span></div><div class=\'list-item nocursor\'><strong>GFS delivery — quantity short</strong><span>Unresolved · 1 case</span></div>')">
+    <div class="exc-icon">⚠️</div>
+    <div class="exc-body">
+      <strong>Open issues / carry-forward</strong>
+      <span>6 unresolved · from shift report and tasks</span>
+    </div>
+    <span class="badge red">6</span>
+  </div>
+
+  <div class="exc-card exc-red" onclick="openModal('Stockouts Today (2)','<div class=\'list-item nocursor\'><strong>Butter Croissant</strong><span>12:15 PM · Prep shortfall · Active</span></div><div class=\'list-item nocursor\'><strong>Almond Milk</strong><span>2:00 PM · Delivery short · Active</span></div>')">
+    <div class="exc-icon">🚫</div>
+    <div class="exc-body">
+      <strong>Stockouts today</strong>
+      <span>Butter Croissant · Almond Milk · both active</span>
+    </div>
+    <span class="badge red">2</span>
+  </div>
+
+  <div class="exc-card exc-amber" onclick="openModal('Espresso Checks — 2 / 5','<div class=\'list-item nocursor\'><div class=\'status-line\'><strong>7:30 AM</strong><span class=\'badge green sm\'>Done · Cameron</span></div></div><div class=\'list-item nocursor\'><div class=\'status-line\'><strong>9:30 AM</strong><span class=\'badge green sm\'>Done · Tommaso</span></div></div><div class=\'list-item nocursor\'><div class=\'status-line\'><strong>11:30 AM</strong><span class=\'badge red sm\'>Missed</span></div></div><div class=\'list-item nocursor\'><div class=\'status-line\'><strong>1:30 PM</strong><span class=\'badge sm\'>Pending</span></div></div><div class=\'list-item nocursor\'><div class=\'status-line\'><strong>3:30 PM</strong><span class=\'badge sm\'>Pending</span></div></div>')">
+    <div class="exc-icon">☕</div>
+    <div class="exc-body">
+      <strong>Espresso checks</strong>
+      <span>2 of 5 done · 11:30 AM missed · 2 pending</span>
+    </div>
+    <span class="badge amber">2 / 5</span>
+  </div>
+
+  <div class="exc-card exc-amber" onclick="openModal('Low Stock / Count Issues','<div class=\'list-item nocursor\'><strong>Whole Milk</strong><span>Walk-in Cooler · Last count: 8 L · Threshold: 12 L</span></div><div class=\'notice amber\' style=\'margin-top:8px\'>Item is below threshold. Check before next order.</div>')">
+    <div class="exc-icon">📦</div>
+    <div class="exc-body">
+      <strong>Low stock / count issues</strong>
+      <span>Whole Milk below threshold · Walk-in Cooler</span>
+    </div>
+    <span class="badge amber">1</span>
+  </div>
+
+  <div class="exc-card exc-amber" onclick="openModal('Receiving Issues (1)','<div class=\'list-item nocursor\'><strong>GFS delivery — quantity short</strong><span>26 Apr · 1 case missing · Checked by Krystal · Unresolved</span></div><div class=\'notice amber\' style=\'margin-top:8px\'>Follow up with GFS or mark resolved in Desk.</div>')">
+    <div class="exc-icon">🚚</div>
+    <div class="exc-body">
+      <strong>Receiving issues</strong>
+      <span>GFS · 1 case short · unresolved</span>
+    </div>
+    <span class="badge amber">1</span>
+  </div>
+
+  <div class="exc-card exc-neutral" onclick="openModal('Waste Entries Today (4)','<div class=\'list-item nocursor\'><strong>Butter Croissant · 10 pcs</strong><span>Overproduction · 4:15 PM · Krystal</span></div><div class=\'list-item nocursor\'><strong>Brownie · 2 pcs</strong><span>Spoilage / Stale · 4:15 PM · Tommaso</span></div><div class=\'list-item nocursor\'><strong>Whole Milk · 1 L</strong><span>Expired · 9:00 AM · Mackenzie</span></div><div class=\'list-item nocursor\'><strong>Chocolate Croissant · 0 pcs</strong><span>No waste today</span></div>')">
+    <div class="exc-icon">🗑️</div>
+    <div class="exc-body">
+      <strong>Waste entries</strong>
+      <span>4 logged today · review in Desk if needed</span>
+    </div>
+    <span class="badge">4</span>
+  </div>
+
+  <div class="exc-card exc-green">
+    <div class="exc-icon">🗓️</div>
+    <div class="exc-body">
+      <strong>Daily Plan</strong>
+      <span>Submitted · Krystal · Red zone 11:30–2:30</span>
+    </div>
+    <span class="badge green">Done</span>
+  </div>
+
+  <!-- Desk gate at bottom -->
+  <div class="card" style="margin-top:4px;text-align:center;padding:16px;">
+    <div style="font-size:13px;color:var(--muted);margin-bottom:10px">Full drill-down, date-range view, and carry-forward detail are in Frappe Desk.</div>
+    <button onclick="toast('Open Ritmise Operations → Owner Summary in your desktop browser')">Open full summary in Desk →</button>
+  </div>
+</section>
+
+<!-- ══ BATCH — DESK REDIRECT ══ -->
+<section id="batch" class="screen">
+  <div class="breadcrumb"><button onclick="go('more-hub')">← More</button><span>/</span><span>Batch Import</span></div>
+  <div class="desk-gate">
+    <div class="gate-icon">📥</div>
+    <div class="gate-badge">Frappe Desk only</div>
+    <h2>Batch Import</h2>
+    <p>Ritmise uses Frappe's built-in Data Import tool — no separate import screen needed. Templates are auto-generated per DocType.</p>
+    <p class="small">Supported imports: Espresso Check Entries, Baked Goods Daily Records, Critical Count Entries, Ritmise Tasks, Operational Staff. Access via: Frappe Desk → Data Import.</p>
+    <button onclick="toast('Open Frappe Desk → Data Import')">Open Data Import in Desk →</button>
+  </div>
+</section>
+
+<!-- ══ SETTINGS — DESK REDIRECT ══ -->
+<section id="settings" class="screen">
+  <div class="breadcrumb"><button onclick="go('more-hub')">← More</button><span>/</span><span>Settings</span></div>
+  <div class="desk-gate">
+    <div class="gate-icon">⚙️</div>
+    <div class="gate-badge">Frappe Desk only</div>
+    <h2>Settings</h2>
+    <p>Operational settings — items, staff, warehouses, and Ritmise configuration — are managed in Frappe Desk by admin.</p>
+    <p class="small">Item flags (Critical, Baked Good, Stockout-Enabled, Waste-Enabled) · Operational Staff list · ERPNext Warehouse mapping · Ritmise Settings singleton (placeholder item, price tolerance, sync retry)</p>
+    <button onclick="toast('Open Ritmise Operations → Settings in your desktop browser')">Open in Desk →</button>
+  </div>
+</section>
+
+<!-- ══ BOTTOM NAV ══ -->
+<div class="bottomnav">
+  <button id="nav-home" class="navbtn active" onclick="go('home')"><div>🏠</div>Home</button>
+  <button id="nav-plan" class="navbtn" onclick="go('plan-hub')"><div>🗓️</div>Plan</button>
+  <button id="nav-ops" class="navbtn" onclick="go('ops-hub')"><div>📋</div>Ops</button>
+  <button id="nav-orders" class="navbtn" onclick="go('orders-hub')"><div>📦</div>Orders</button>
+  <button id="nav-more" class="navbtn" onclick="go('more-hub')"><div>☰</div>More</button>
+</div>
+
+</div><!-- /shell -->
+
+<div id="toast" class="toast"></div>
+
+<div id="modal" class="modal" onclick="if(event.target.id==='modal')closeModal()">
+  <div class="modal-box">
+    <h2 id="modal-title"></h2>
+    <div id="modal-body"></div>
+    <div class="btnrow" style="margin-top:12px">
+      <button class="whatsapp" onclick="copyShareText()">Copy for WhatsApp</button>
+      <button class="secondary" onclick="closeModal()">Close</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ── NAV ──────────────────────────────────────────────────
+const NAV_MAP = {
+  home:'nav-home',
+  'plan-hub':'nav-plan', daily:'nav-plan', report:'nav-plan',
+  'ops-hub':'nav-ops', counts:'nav-ops', baked:'nav-ops', waste:'nav-ops', stockout:'nav-ops', espresso:'nav-ops',
+  'orders-hub':'nav-orders', delivery:'nav-orders', purchase:'nav-orders', invoice:'nav-orders',
+  'more-hub':'nav-more', tasks:'nav-more', summary:'nav-more', batch:'nav-more', settings:'nav-more'
+};
+function go(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  const s = document.getElementById(id);
+  if (s) s.classList.add('active');
+  document.querySelectorAll('.navbtn').forEach(b => b.classList.remove('active'));
+  const nav = document.getElementById(NAV_MAP[id] || 'nav-home');
+  if (nav) nav.classList.add('active');
+  window.scrollTo({top:0, behavior:'smooth'});
+}
+function setRole(role) {
+  document.body.dataset.role = role;
+}
+
+// ── TOAST ──────────────────────────────────────────────────
+let _tt;
+function toast(msg) {
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.classList.add('show');
+  clearTimeout(_tt);
+  _tt = setTimeout(() => el.classList.remove('show'), 2200);
+}
+
+// ── MODAL ──────────────────────────────────────────────────
+let _currentShareText = '';
+function openModal(title, body, shareText) {
+  document.getElementById('modal-title').textContent = title;
+  document.getElementById('modal-body').innerHTML = body;
+  _currentShareText = shareText || '';
+  document.getElementById('modal').classList.add('show');
+}
+function closeModal() { document.getElementById('modal').classList.remove('show'); }
+function copyShareText() {
+  if (navigator.clipboard && _currentShareText) {
+    navigator.clipboard.writeText(_currentShareText).then(() => {
+      toast('Copied — paste into WhatsApp');
+      closeModal();
+    }).catch(() => { toast('Copied — paste into WhatsApp'); closeModal(); });
+  } else {
+    toast('Copied — paste into WhatsApp');
+    closeModal();
+  }
+}
+
+// ── OFFLINE ──────────────────────────────────────────────────
+let _offline = false;
+function toggleOffline() {
+  _offline = !_offline;
+  const p = document.getElementById('syncPill');
+  p.className = 'sync-pill ' + (_offline ? 'offline' : 'online');
+  p.textContent = _offline ? '● Offline' : '● Online';
+}
+
+// ── SUBMIT / SHARE ──────────────────────────────────────────────────
+function submitPlan() {
+  let ok = true;
+  const date = document.getElementById('plan-date');
+  const cap = document.getElementById('plan-captain');
+  const fd = document.getElementById('f-plan-date');
+  const fc = document.getElementById('f-plan-captain');
+  if (!date.value) { fd.classList.add('error'); ok = false; } else fd.classList.remove('error');
+  if (!cap.value)  { fc.classList.add('error'); ok = false; } else fc.classList.remove('error');
+  if (!ok) { toast('Fill in required fields first'); return; }
+  document.getElementById('plan-submitted').classList.remove('hidden');
+  toast('Plan submitted');
+}
+
+function submitReport() {
+  const cap = document.getElementById('report-captain');
+  const fc = document.getElementById('f-report-captain');
+  if (!cap.value) { fc.classList.add('error'); toast('Select a captain'); return; }
+  fc.classList.remove('error');
+  calcTotal();
+  document.getElementById('report-submitted').classList.remove('hidden');
+  toast('Report submitted');
+}
+
+function showWhatsApp(type) {
+  const texts = {
+    plan: `TODAY PLAN · 26 Apr 2026
+Captain: Krystal
+Red Zone: 11:30 – 2:30
+
+Stations:
+  Cash:        Mackenzie
+  Bar:         Cameron
+  Dispatch:    Krystal
+  Dish/Dining: Gurpreet
+  Floater:     Cecilia
+
+Breaks:
+  Mackenzie 11:00–11:20 (cover: Cecilia)
+  Cameron   12:30–12:50 (cover: Tommaso)
+
+Timed actions:
+  10:45  FOH cooler refill before lunch
+  14:45  Post-rush reset: dining, patio, washrooms
+
+Note: Stations locked during red zone.
+Handoff by name before leaving a station.`,
+
+    report: `CAPTAIN REPORT · 26 Apr 2026
+Captain: Krystal
+Service open: 7:30 AM   Red zone actual: 11:35 AM
+Stations kept: Partial   Handoff by name: Yes
+
+Scores (out of 10):
+  Team energy:       7   Red zone held:     6
+  Cash station:      8   Bar station:       8
+  Dispatch:          6   Dish / Dining:     7
+  Station discipline:6   Cleaning:          7
+  Customer exp:      7   Stock awareness:   7
+  ─────────────────────────────────────────
+  Total:            69 / 100
+
+Carry-forward:
+  • Patio reset tonight — Gurpreet
+  • Check croissant carry-over tomorrow — Krystal
+
+Notes: Lunch rush manageable but Dispatch needed
+stronger ownership 12:10–1:15. Croissants ran out
+at 12:15 — prep shortfall.`
+  };
+  const titles = { plan:'Daily Plan · 26 Apr', report:'Captain Report · 26 Apr' };
+  openModal(
+    titles[type],
+    `<div class="sharebox">${texts[type]}</div><p class="small">Tap "Copy for WhatsApp" to copy this text.</p>`,
+    texts[type]
+  );
+}
+
+// ── FORMS ──────────────────────────────────────────────────
+function showForm(id) { document.getElementById(id).classList.add('show'); }
+function cancelForm(id) { document.getElementById(id).classList.remove('show'); }
+
+function saveTimedAction() {
+  const t = document.getElementById('new-action-time').value;
+  const d = document.getElementById('new-action-desc').value.trim();
+  if (!t || !d) { toast('Enter time and description'); return; }
+  const [h, m] = t.split(':');
+  const hr = parseInt(h);
+  const ampm = hr >= 12 ? 'PM' : 'AM';
+  const dh = (hr > 12 ? hr - 12 : hr || 12);
+  const label = dh + ':' + m + ' ' + ampm;
+  // Insert chronologically
+  const list = document.getElementById('timed-list');
+  const items = [...list.children];
+  const div = document.createElement('div');
+  div.className = 'list-item nocursor';
+  div.innerHTML = `<strong>${label}</strong><span>${d}</span>`;
+  // Find insert position
+  const toMins = (str) => {
+    const [hh, rest] = str.split(':');
+    const mm = parseInt(rest);
+    const ispm = str.includes('PM') && parseInt(hh) !== 12;
+    const isam = str.includes('AM') && parseInt(hh) === 12;
+    let h24 = parseInt(hh);
+    if (ispm) h24 += 12;
+    if (isam) h24 = 0;
+    return h24 * 60 + mm;
+  };
+  const newMins = hr * 60 + parseInt(m);
+  let inserted = false;
+  for (let i = 0; i < items.length; i++) {
+    const existingTime = items[i].querySelector('strong').textContent;
+    if (toMins(existingTime) > newMins) {
+      list.insertBefore(div, items[i]);
+      inserted = true;
+      break;
+    }
+  }
+  if (!inserted) list.appendChild(div);
+  document.getElementById('new-action-time').value = '';
+  document.getElementById('new-action-desc').value = '';
+  cancelForm('add-action-form');
+  toast('Action added');
+}
+
+function saveBreak() {
+  const staff = document.getElementById('break-staff').value;
+  const time = document.getElementById('break-time').value;
+  const cover = document.getElementById('break-cover').value;
+  if (!time) { toast('Enter a break time'); return; }
+  const [h, m] = time.split(':');
+  const hr = parseInt(h);
+  const ampm = hr >= 12 ? 'PM' : 'AM';
+  const dh = hr > 12 ? hr - 12 : hr || 12;
+  const display = dh + ':' + m + ' ' + ampm;
+  const div = document.createElement('div');
+  div.className = 'list-item nocursor';
+  div.innerHTML = `<strong>${staff}</strong><span>${display}${cover ? ' · Cover: ' + cover : ''}</span>`;
+  document.getElementById('break-list').appendChild(div);
+  document.getElementById('break-time').value = '';
+  cancelForm('add-break-form');
+  toast('Break added');
+}
+
+function saveIssue() {
+  const title = document.getElementById('new-issue-title').value.trim();
+  if (!title) { toast('Describe the issue'); return; }
+  const area = document.getElementById('new-issue-area').value.trim();
+  const person = document.getElementById('new-issue-person').value;
+  const div = document.createElement('div');
+  div.className = 'list-item nocursor';
+  div.innerHTML = `<strong>${title}</strong><span>${area ? 'Area: ' + area + ' · ' : ''}Responsible: ${person}</span>`;
+  document.getElementById('issue-list').appendChild(div);
+  document.getElementById('new-issue-title').value = '';
+  document.getElementById('new-issue-area').value = '';
+  cancelForm('add-issue-form');
+  toast('Issue added');
+}
+
+// ── CAPTAIN REPORT: AUTO-TOTAL ──────────────────────────────────────────────────
+function calcTotal() {
+  const inputs = document.querySelectorAll('#report .score-grid input[type="number"]');
+  let total = 0;
+  inputs.forEach(i => total += Math.min(10, Math.max(0, Number(i.value || 0))));
+  const el = document.getElementById('score-total');
+  el.textContent = total + ' / 100';
+  el.className = 'score-total ' + (total >= 75 ? 'green' : total >= 55 ? 'amber' : 'red-col');
+}
+
+// ── COUNTS: INLINE CARD ENTRY ──────────────────────────────────────────────────
+const COUNT_LOCATIONS = ['Walk-in Cooler', 'Walk-in Freezer', 'FOH Cooler', 'Dry Storage'];
+const COUNT_DATA = {
+  'Walk-in Cooler': {
+    critical: [
+      {name:'Whole Milk', uom:'L', threshold:12},
+      {name:'Cream', uom:'L', threshold:6},
+      {name:'Almond Milk', uom:'L', threshold:8},
+    ],
+    all: [
+      {name:'Whole Milk', uom:'L', threshold:12},
+      {name:'Cream', uom:'L', threshold:6},
+      {name:'Almond Milk', uom:'L', threshold:8},
+      {name:'Oat Milk', uom:'L', threshold:4},
+      {name:'Orange Juice', uom:'L', threshold:3},
+    ]
+  },
+  'Walk-in Freezer': {
+    critical: [{name:'Frozen Pastry Dough', uom:'kg', threshold:3},{name:'Ice Cream Mix', uom:'kg', threshold:5}],
+    all: [{name:'Frozen Pastry Dough', uom:'kg', threshold:3},{name:'Ice Cream Mix', uom:'kg', threshold:5},{name:'Frozen Waffles', uom:'pcs', threshold:12}]
+  },
+  'FOH Cooler': {
+    critical: [{name:'Butter Croissant', uom:'pcs', threshold:18},{name:'Chocolate Croissant', uom:'pcs', threshold:12}],
+    all: [{name:'Butter Croissant', uom:'pcs', threshold:18},{name:'Chocolate Croissant', uom:'pcs', threshold:12},{name:'Brownie', uom:'pcs', threshold:8},{name:'Spanakopita', uom:'pcs', threshold:6}]
+  },
+  'Dry Storage': {
+    critical: [{name:'Coffee Beans (Espresso)', uom:'kg', threshold:2},{name:'Iced Tea Syrup', uom:'bottles', threshold:2}],
+    all: [{name:'Coffee Beans (Espresso)', uom:'kg', threshold:2},{name:'Iced Tea Syrup', uom:'bottles', threshold:2},{name:'Napkins', uom:'packs', threshold:3},{name:'Paper Cups 12oz', uom:'sleeves', threshold:4}]
+  }
+};
+
+let _countMode = 'critical';
+function setCountMode(mode, btn) {
+  _countMode = mode;
+  document.querySelectorAll('#counts .segment button').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  loadCountItems();
+}
+
+function loadCountItems() {
+  const loc = document.getElementById('count-location').value;
+  const container = document.getElementById('count-items');
+  container.innerHTML = '';
+  if (loc === 'All locations') {
+    COUNT_LOCATIONS.forEach(location => {
+      const data = COUNT_DATA[location];
+      const items = data[_countMode] || data['critical'];
+      const hdr = document.createElement('div');
+      hdr.className = 'location-header';
+      hdr.textContent = location;
+      container.appendChild(hdr);
+      items.forEach(item => renderCountCard(container, item, location));
+    });
+  } else {
+    const data = COUNT_DATA[loc] || COUNT_DATA['Walk-in Cooler'];
+    const items = data[_countMode] || data['critical'];
+    items.forEach(item => renderCountCard(container, item, loc));
+  }
+}
+
+function renderCountCard(container, item, location) {
+  const div = document.createElement('div');
+  div.className = 'check-card';
+  div.dataset.threshold = item.threshold;
+  div.dataset.uom = item.uom;
+  div.dataset.location = location;
+  div.onclick = () => expandCard(div);
+  div.innerHTML = `
+    <strong>${item.name}</strong>
+    <div class="csub">Unit: ${item.uom} · Threshold: ${item.threshold}</div>
+    <div class="card-entry hidden">
+      <div class="field" style="margin-bottom:8px">
+        <label>Actual count (${item.uom})</label>
+        <input type="number" placeholder="Enter quantity" class="count-val" min="0" onclick="event.stopPropagation()"/>
+      </div>
+      <div class="btnrow">
+        <button class="sm green" onclick="event.stopPropagation();saveCardCount(this)">Save count</button>
+        <button class="sm secondary" onclick="event.stopPropagation();collapseCards()">Cancel</button>
+      </div>
+      <div class="card-saved hidden" style="margin-top:8px;padding:8px 10px;border-radius:10px;font-size:13px"></div>
+    </div>`;
+  container.appendChild(div);
+}
+
+function expandCard(el) {
+  const by = document.getElementById('count-by').value;
+  if (!by) { toast('Select who counted first'); return; }
+  collapseCards();
+  el.classList.add('selected');
+  const entry = el.querySelector('.card-entry');
+  entry.classList.remove('hidden');
+  el.querySelector('.count-val').focus();
+}
+
+function collapseCards() {
+  document.querySelectorAll('#count-items .check-card').forEach(c => {
+    c.classList.remove('selected');
+    c.querySelector('.card-entry').classList.add('hidden');
+  });
+}
+
+function saveCardCount(btn) {
+  const card = btn.closest('.check-card');
+  const threshold = parseInt(card.dataset.threshold);
+  const uom = card.dataset.uom;
+  const val = Number(card.querySelector('.count-val').value);
+  const saved = card.querySelector('.card-saved');
+  const isLow = val < threshold;
+  saved.className = 'card-saved ' + (isLow ? 'notice amber' : 'notice green');
+  const syncNote = _offline ? 'Queued for ERPNext sync' : 'Stock Reconciliation queued';
+  saved.textContent = isLow
+    ? `⚠ ${val} ${uom} — below threshold (${threshold}) · ${syncNote}`
+    : `✓ ${val} ${uom} saved · ${syncNote}`;
+  saved.classList.remove('hidden');
+  card.querySelector('.count-val').disabled = true;
+  btn.style.display = 'none';
+  toast('Count saved');
+}
+
+// ── BAKED GOODS ──────────────────────────────────────────────────
+const BAKED_ITEMS = [
+  {name:'Butter Croissant',        carry:4, uom:'pcs'},
+  {name:'Chocolate Croissant',     carry:2, uom:'pcs'},
+  {name:'Brownie',                 carry:6, uom:'pcs'},
+  {name:'Spanakopita',             carry:3, uom:'pcs'},
+  {name:'Almond Croissant',        carry:0, uom:'pcs'},
+  {name:'Banana Bread',            carry:4, uom:'pcs'},
+  {name:'Cheese Scone',            carry:2, uom:'pcs'},
+  {name:'Cinnamon Roll',           carry:0, uom:'pcs'},
+  {name:'Lemon Tart',              carry:1, uom:'pcs'},
+  {name:'Carrot Cake Slice',       carry:3, uom:'pcs'},
+  {name:'Blueberry Muffin',        carry:0, uom:'pcs'},
+  {name:'Quiche Lorraine',         carry:2, uom:'pcs'},
+  {name:'Ham & Cheese Croissant',  carry:1, uom:'pcs'},
+  {name:'Vegan Muffin',            carry:0, uom:'pcs'},
+];
+let _bakedDone = 0;
+
+function loadBakedItems() {
+  const container = document.getElementById('baked-list');
+  if (!container) return;
+  container.innerHTML = '';
+  _bakedDone = 0;
+  updateBakedProgress();
+  BAKED_ITEMS.forEach((item, idx) => {
+    const div = document.createElement('div');
+    div.className = 'baked-card';
+    div.id = 'baked-card-' + idx;
+    div.dataset.idx = idx;
+    div.dataset.state = 'pending';
+    const carryText = item.carry > 0 ? `Carry-over: ${item.carry} pcs · ` : 'No carry-over · ';
+    div.innerHTML = `
+      <div class="baked-card-header" onclick="expandBakedCard(${idx})">
+        <div style="flex:1;min-width:0">
+          <strong>${item.name}</strong>
+          <div class="csub" id="baked-sub-${idx}">${carryText}tap to enter</div>
+        </div>
+        <span class="badge" id="baked-badge-${idx}" style="flex-shrink:0;margin-left:8px">Pending</span>
+      </div>
+      <div class="baked-entry">
+        <div class="row">
+          <div class="field">
+            <label>Carry-over <span class="prefill-tag">Yesterday</span></label>
+            <input class="prefilled baked-carry" type="number" value="${item.carry}" oninput="calcBakedWaste(${idx})" onclick="event.stopPropagation()"/>
+          </div>
+          <div class="field">
+            <label>Added today</label>
+            <input class="baked-added" type="number" placeholder="0" oninput="calcBakedWaste(${idx})" onclick="event.stopPropagation()"/>
+          </div>
+        </div>
+        <div class="row">
+          <div class="field">
+            <label>Remaining</label>
+            <input class="baked-remaining" type="number" placeholder="0" oninput="calcBakedWaste(${idx})" onclick="event.stopPropagation()"/>
+          </div>
+          <div class="field">
+            <label>Keep for tomorrow</label>
+            <input class="baked-keep" type="number" placeholder="0" oninput="calcBakedWaste(${idx})" onclick="event.stopPropagation()"/>
+          </div>
+        </div>
+        <div class="field">
+          <label>Runout today?</label>
+          <select onclick="event.stopPropagation()"><option>No</option><option>Yes — ran out during service</option></select>
+        </div>
+        <div class="baked-waste notice blue">Waste: enter numbers above</div>
+        <div class="btnrow" style="margin-top:8px">
+          <button class="sm green" onclick="event.stopPropagation();saveBakedCard(${idx})">Save</button>
+          <button class="sm secondary" onclick="event.stopPropagation();markNoChange(${idx})">No production today</button>
+          <button class="sm ghost" onclick="event.stopPropagation();collapseBakedCards()">Cancel</button>
+        </div>
+      </div>`;
+    container.appendChild(div);
+  });
+}
+
+function expandBakedCard(idx) {
+  const by = document.getElementById('baked-checked-by').value;
+  if (!by) { toast('Select who checked first'); return; }
+  const card = document.getElementById('baked-card-' + idx);
+  if (card.dataset.state !== 'pending') return;
+  collapseBakedCards();
+  card.classList.add('selected');
+  const input = card.querySelector('.baked-added');
+  if (input) setTimeout(() => input.focus(), 50);
+}
+
+function collapseBakedCards() {
+  document.querySelectorAll('.baked-card.selected').forEach(c => c.classList.remove('selected'));
+}
+
+function calcBakedWaste(idx) {
+  const card = document.getElementById('baked-card-' + idx);
+  if (!card) return 0;
+  const carry = Number(card.querySelector('.baked-carry').value || 0);
+  const added = Number(card.querySelector('.baked-added').value || 0);
+  const rem   = Number(card.querySelector('.baked-remaining').value || 0);
+  const keep  = Number(card.querySelector('.baked-keep').value || 0);
+  const waste = Math.max(0, carry + added - rem - keep);
+  const el = card.querySelector('.baked-waste');
+  el.textContent = `Waste today: ${waste} pcs`;
+  el.className = 'baked-waste notice ' + (waste > 8 ? 'amber' : waste > 0 ? 'blue' : 'green');
+  return waste;
+}
+
+function saveBakedCard(idx) {
+  const card = document.getElementById('baked-card-' + idx);
+  const waste = calcBakedWaste(idx);
+  const added = Number(card.querySelector('.baked-added').value || 0);
+  card.dataset.state = 'done';
+  card.classList.remove('selected');
+  card.classList.add('done');
+  document.getElementById('baked-sub-' + idx).textContent = `Added: ${added} · Waste: ${waste} pcs`;
+  const badge = document.getElementById('baked-badge-' + idx);
+  badge.textContent = waste > 0 ? `${waste} waste` : 'Done';
+  badge.className = 'badge ' + (waste > 0 ? 'amber' : 'green');
+  _bakedDone++;
+  updateBakedProgress();
+  toast(waste > 0 ? `${waste} pcs waste linked` : 'Saved — no waste');
+  // auto-advance to next pending item
+  const next = document.querySelector('.baked-card[data-state="pending"]');
+  if (next) setTimeout(() => expandBakedCard(parseInt(next.dataset.idx)), 280);
+}
+
+function markNoChange(idx) {
+  const card = document.getElementById('baked-card-' + idx);
+  card.dataset.state = 'no-change';
+  card.classList.remove('selected');
+  card.classList.add('no-change');
+  document.getElementById('baked-sub-' + idx).textContent = 'No production today';
+  const badge = document.getElementById('baked-badge-' + idx);
+  badge.textContent = 'Skipped';
+  badge.className = 'badge';
+  _bakedDone++;
+  updateBakedProgress();
+  // auto-advance
+  const next = document.querySelector('.baked-card[data-state="pending"]');
+  if (next) setTimeout(() => expandBakedCard(parseInt(next.dataset.idx)), 280);
+}
+
+function updateBakedProgress() {
+  const total = BAKED_ITEMS.length;
+  const el = document.getElementById('baked-progress');
+  if (!el) return;
+  el.textContent = `${_bakedDone} / ${total} done`;
+  el.className = 'badge ' + (_bakedDone === total ? 'green' : _bakedDone > 0 ? 'amber' : '');
+}
+
+// ── WASTE GUIDANCE ──────────────────────────────────────────────────
+function wasteGuidance() {
+  const map = {
+    'Overproduction':'Too much was made or put out.',
+    'Spoilage / Stale':'Item became unusable due to time or condition.',
+    'Wrongly Made':'Item was made incorrectly and discarded.',
+    'Damaged / Broken':'Item was physically damaged.',
+    'Expired / No Longer Usable':'Item passed its usable date or condition.',
+    'Improper Freshness Labeling':'Labeling was wrong or missing — item cannot be trusted.',
+    'Other':'Use the note field to explain clearly.'
+  };
+  document.getElementById('wasteGuide').textContent = map[document.getElementById('wasteCat').value] || '';
+}
+
+// ── ESPRESSO ──────────────────────────────────────────────────
+function prefillEspresso(timeStr) {
+  // Convert "11:30" to 24h time value
+  const [h, m] = timeStr.split(':');
+  const pad = n => String(n).padStart(2,'0');
+  document.getElementById('espresso-time').value = pad(parseInt(h)) + ':' + m;
+  document.getElementById('espresso-form').scrollIntoView({behavior:'smooth', block:'start'});
+  toast('Time set to ' + timeStr + ' — enter readings below');
+}
+function espressoCheck() {
+  const d = document.getElementById('decafDose').value;
+  const t = document.getElementById('decafTime').value;
+  document.getElementById('espressoWarn').classList.toggle('hidden', !(d && !t));
+}
+
+// ── DELIVERY ──────────────────────────────────────────────────
+function issueToggle() {
+  document.getElementById('issueFields').classList.toggle('hidden', document.getElementById('del-issue').value === 'no');
+}
+function returnToggle() {
+  document.getElementById('returnNote').classList.toggle('hidden', document.getElementById('del-returned').value === 'no');
+}
+function loadOrderRef() {
+  const map = {gfs:'GFS', bondi:'Bondi', none:''};
+  document.getElementById('del-supplier').value = map[document.getElementById('del-order').value] || '';
+}
+function saveDelivery() {
+  const state = document.getElementById('del-invoice-state').value;
+  const saved = document.getElementById('del-saved');
+  const hasInvoice = state === 'Received with delivery' || state === 'Online / email';
+  const syncMsg = _offline ? 'Queued — Purchase Receipt will sync when online.' : 'Purchase Receipt created in ERPNext.';
+  saved.className = 'notice ' + (hasInvoice ? 'blue' : 'green') + ' mt10';
+  saved.innerHTML = `✓ Delivery check submitted · ${syncMsg}`
+    + (hasInvoice ? `<br><span style="margin-top:6px;display:block">Invoice received — <button class="link-btn" onclick="go('invoice')">open Invoice Entry in Desk →</button></span>` : '');
+  saved.classList.remove('hidden');
+  toast('Delivery check submitted');
+}
+
+// ── ORDER REGISTRATION ──────────────────────────────────────────────────
+function registerOrder() {
+  const badge = document.getElementById('poBadge');
+  badge.className = 'notice ' + (_offline ? 'amber' : 'blue') + ' mt10';
+  badge.textContent = _offline
+    ? 'Queued — Purchase Order will be created in ERPNext when online.'
+    : 'Submitted · Purchase Order created in ERPNext.';
+  badge.classList.remove('hidden');
+  toast('Order registered');
+}
+
+// ── TASKS ──────────────────────────────────────────────────
+function filterTasks(filter, btn) {
+  document.querySelectorAll('#tasks .segment button').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  let visible = 0;
+  document.querySelectorAll('#task-list .list-item').forEach(item => {
+    const status = item.dataset.status;
+    const priority = item.dataset.priority;
+    let show = true;
+    if (filter === 'open') show = status !== 'done';
+    if (filter === 'urgent') show = priority === 'urgent';
+    item.classList.toggle('hidden', !show);
+    if (show) visible++;
+  });
+  document.getElementById('tasks-empty').classList.toggle('hidden', visible > 0);
+}
+
+function openTask(title, assignee, priority, status, due) {
+  const col = {Urgent:'red', High:'amber', Normal:''};
+  openModal('Task Detail', `
+    <div style="margin-bottom:12px">
+      <div class="status-line" style="margin-bottom:5px">
+        <strong>${title}</strong>
+        <span class="badge ${col[priority]||''}">${priority}</span>
+      </div>
+      <div class="small">Assigned to: <strong>${assignee}</strong> · Due: ${due} · ${status}</div>
+    </div>
+    <div class="divider"></div>
+    <div class="field" style="margin-top:10px">
+      <label>Completed by</label>
+      <select><option value="">Select…</option><option>Krystal</option><option>Tommaso</option><option>Mackenzie</option><option>Cecilia</option><option>Cameron</option><option>Gurpreet</option><option>Vakeeran</option><option>Yosef</option></select>
+    </div>
+    <div class="field">
+      <label>Completion note (optional)</label>
+      <textarea placeholder="What was done?"></textarea>
+    </div>
+    <button class="green" style="width:100%" onclick="toast('Task marked done');closeModal()">Mark Done</button>
+  `);
+}
+
+// ── INIT ──────────────────────────────────────────────────
+loadCountItems();
+loadBakedItems();
+calcTotal();
+</script>
+</body>
+</html>

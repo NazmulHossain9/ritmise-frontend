@@ -1,4 +1,4 @@
-import { createRouter, createWebHashHistory } from 'vue-router'
+import { createRouter, createWebHistory } from '@ionic/vue-router'
 
 import HomeView        from '@/views/HomeView.vue'
 import PlanHubView     from '@/views/PlanHubView.vue'
@@ -49,7 +49,7 @@ const routes = [
 ]
 
 export default createRouter({
-  history: createWebHashHistory(),
+  history: createWebHistory(),
   routes,
   scrollBehavior: () => ({ top: 0 }),
 })
