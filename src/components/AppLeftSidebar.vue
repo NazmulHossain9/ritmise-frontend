@@ -175,30 +175,21 @@ function childrenHeight(section) {
 .left-sidebar {
   width: 256px;
   flex-shrink: 0;
-  background: linear-gradient(180deg, #0d1b2e 0%, #0f2137 55%, #112440 100%);
-  color: #fff;
+  background: #f5f7fb;
+  color: #1e293b;
   display: flex;
   flex-direction: column;
   height: 100vh;
   overflow: hidden;
-  box-shadow: 4px 0 32px rgba(0,0,0,.35);
+  box-shadow: 4px 0 16px rgba(0,0,0,.04);
   position: relative;
   z-index: 10;
-}
-
-/* Subtle texture overlay */
-.left-sidebar::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background: radial-gradient(ellipse at 20% 0%, rgba(56,189,248,.07) 0%, transparent 60%);
-  pointer-events: none;
 }
 
 /* ── Brand ── */
 .sb-brand {
   padding: 26px 20px 18px;
-  border-bottom: 1px solid rgba(255,255,255,.06);
+  border-bottom: 1px solid rgba(0,0,0,.07);
   flex-shrink: 0;
   position: relative;
 }
@@ -207,17 +198,14 @@ function childrenHeight(section) {
   font-weight: 800;
   letter-spacing: -.5px;
   line-height: 1;
-  background: linear-gradient(135deg, #fff 0%, #93c5fd 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
+  color: #1e293b;
 }
 .sb-meta {
   margin-top: 7px;
   font-size: 10px;
   font-weight: 700;
   letter-spacing: .12em;
-  color: rgba(255,255,255,.32);
+  color: rgba(0,0,0,.35);
 }
 
 /* ── Status ── */
@@ -227,7 +215,7 @@ function childrenHeight(section) {
   align-items: center;
   gap: 8px;
   flex-shrink: 0;
-  border-bottom: 1px solid rgba(255,255,255,.06);
+  border-bottom: 1px solid rgba(0,0,0,.07);
 }
 .sb-sync {
   display: inline-flex;
@@ -244,8 +232,8 @@ function childrenHeight(section) {
   letter-spacing: .02em;
 }
 .sb-sync:hover { opacity: .8; transform: scale(.97); }
-.sb-sync.online  { background: rgba(16,185,129,.2); color: #6ee7b7; border: 1px solid rgba(16,185,129,.25); }
-.sb-sync.offline { background: rgba(239,68,68,.2);  color: #fca5a5; border: 1px solid rgba(239,68,68,.25); }
+.sb-sync.online  { background: rgba(16,185,129,.15); color: #059669; border: 1px solid rgba(16,185,129,.3); }
+.sb-sync.offline { background: rgba(239,68,68,.12);  color: #dc2626; border: 1px solid rgba(239,68,68,.25); }
 .sb-sync-dot {
   width: 6px; height: 6px; border-radius: 50%;
   background: currentColor; flex-shrink: 0;
@@ -259,16 +247,16 @@ function childrenHeight(section) {
   font-size: 11px;
   font-weight: 600;
   border-radius: 8px;
-  border: 1px solid rgba(255,255,255,.12);
-  background: rgba(255,255,255,.06);
-  color: rgba(255,255,255,.75);
+  border: 1px solid rgba(0,0,0,.12);
+  background: rgba(0,0,0,.04);
+  color: #334155;
   padding: 5px 10px;
   font-family: inherit;
   -webkit-appearance: none;
   cursor: pointer;
   transition: background .15s, border-color .15s;
 }
-.sb-role:hover { background: rgba(255,255,255,.11); border-color: rgba(255,255,255,.2); }
+.sb-role:hover { background: rgba(0,0,0,.07); border-color: rgba(0,0,0,.18); }
 .sb-role option { color: #111; background: #fff; }
 
 /* ── Nav ── */
@@ -286,7 +274,7 @@ function childrenHeight(section) {
   content: '';
   display: block;
   height: 1px;
-  background: rgba(255,255,255,.05);
+  background: rgba(0,0,0,.06);
   margin: 5px 16px 7px;
 }
 
@@ -299,7 +287,7 @@ function childrenHeight(section) {
   margin: 1px 8px;
   padding: 9px 12px;
   background: transparent;
-  color: rgba(255,255,255,.46);
+  color: #64748b;
   border: 0;
   border-left: 2px solid transparent;
   border-radius: 10px;
@@ -312,12 +300,12 @@ function childrenHeight(section) {
   line-height: 1.2;
 }
 .sb-item:hover {
-  background: rgba(255,255,255,.06);
-  color: rgba(255,255,255,.82);
+  background: rgba(0,0,0,.05);
+  color: #1e293b;
 }
 .sb-item.active {
   background: linear-gradient(90deg, rgba(56,189,248,.14) 0%, rgba(56,189,248,.04) 100%);
-  color: #7dd3fc;
+  color: #0369a1;
   border-left-color: #38bdf8;
 }
 .sb-icon {
@@ -329,17 +317,17 @@ function childrenHeight(section) {
   justify-content: center;
   flex-shrink: 0;
   border-radius: 8px;
-  background: rgba(255,255,255,.05);
+  background: rgba(0,0,0,.05);
   transition: background .14s;
 }
-.sb-item:hover .sb-icon { background: rgba(255,255,255,.09); }
+.sb-item:hover .sb-icon { background: rgba(0,0,0,.08); }
 .sb-item.active .sb-icon { background: rgba(56,189,248,.15); }
 .sb-label { flex: 1; }
 
 /* Chevron */
 .sb-chevron {
   font-size: 13px;
-  color: rgba(255,255,255,.25);
+  color: rgba(0,0,0,.25);
   transform: rotate(-90deg);
   transition: transform .2s, color .2s;
   display: inline-block;
@@ -348,7 +336,7 @@ function childrenHeight(section) {
 }
 .sb-chevron.open {
   transform: rotate(90deg);
-  color: rgba(56,189,248,.7);
+  color: #0284c7;
 }
 
 /* Children — collapsible wrapper */
@@ -366,7 +354,7 @@ function childrenHeight(section) {
   width: 100%;
   padding: 6px 10px;
   background: transparent;
-  color: rgba(255,255,255,.36);
+  color: #94a3b8;
   border: 0;
   border-left: 2px solid transparent;
   border-radius: 8px;
@@ -382,23 +370,23 @@ function childrenHeight(section) {
 }
 .sb-child-dot {
   width: 4px; height: 4px; border-radius: 50%;
-  background: rgba(255,255,255,.18);
+  background: rgba(0,0,0,.18);
   flex-shrink: 0;
   transition: background .1s, transform .1s;
 }
-.sb-child:hover { background: rgba(255,255,255,.05); color: rgba(255,255,255,.72); }
-.sb-child:hover .sb-child-dot { background: rgba(255,255,255,.45); transform: scale(1.3); }
-.sb-child.active { color: #93c5fd; border-left-color: rgba(56,189,248,.5); }
+.sb-child:hover { background: rgba(0,0,0,.04); color: #334155; }
+.sb-child:hover .sb-child-dot { background: rgba(0,0,0,.35); transform: scale(1.3); }
+.sb-child.active { color: #0369a1; border-left-color: rgba(56,189,248,.6); }
 .sb-child.active .sb-child-dot { background: #38bdf8; transform: scale(1.4); }
 
 /* ── Footer ── */
 .sb-footer {
   flex-shrink: 0;
   padding: 12px 20px 18px;
-  border-top: 1px solid rgba(255,255,255,.05);
+  border-top: 1px solid rgba(0,0,0,.07);
   font-size: 10px;
   font-weight: 600;
   letter-spacing: .06em;
-  color: rgba(255,255,255,.18);
+  color: rgba(0,0,0,.25);
 }
 </style>
